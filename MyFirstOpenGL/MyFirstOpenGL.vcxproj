@@ -24,6 +24,7 @@
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Stb.cpp" />
+    <ClCompile Include="TimeManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MyFirstFragmentShader.glsl" />
@@ -35,6 +36,7 @@
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="TimeManager.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
