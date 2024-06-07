@@ -25,7 +25,7 @@
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ProgramManager.cpp" />
     <ClCompile Include="Source.cpp" />
-    <ClCompile Include="stb.cpp" />
+    <ClCompile Include="Stb.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GeometryOfModels.glsl" />
@@ -33,12 +33,7 @@
     <None Include="MyFirstVertexShader.glsl" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="GameObject.h" />
-    <ClInclude Include="InputManager.h" />
-    <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
-    <ClInclude Include="ProgramManager.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

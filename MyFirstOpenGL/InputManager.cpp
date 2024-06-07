@@ -1,10 +1,5 @@
 #include "InputManager.h"
 
-
-
-
-
-void InputManager::Init(GLFWwindow* window)
 {
 	this->window = window;
 
@@ -13,7 +8,6 @@ void InputManager::Init(GLFWwindow* window)
 	key = -1;
 }
 
-void InputManager::Update()
 {
 	lastKeyPressed = keyPressed;
 
@@ -32,9 +26,7 @@ void InputManager::Update()
 
 	if (keyPressed == 0 && lastKeyPressed != 0)
 	{
-		key = lastKeyPressed;
 	}
-
 
 
 }
