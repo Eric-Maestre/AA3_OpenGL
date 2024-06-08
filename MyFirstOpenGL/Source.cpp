@@ -90,14 +90,14 @@ int main() {
     }
 
     // Leer textura piedra
-    //int widthRock, heightRock, nrChannelsRock;
-    //unsigned char* textureInfoRock = stbi_load("Assets/Textures/rock.png", &widthRock, &heightRock, &nrChannelsRock, 0);
-    //if (!textureInfoRock) {
-    //    std::cerr << "Error al cargar la textura piedra" << std::endl;
-    //    stbi_image_free(textureInfo);
-    //    glfwTerminate();
-    //    return -1;
-    //}
+    int widthRock, heightRock, nrChannelsRock;
+    unsigned char* textureInfoRock = stbi_load("Assets/Textures/rock.png", &widthRock, &heightRock, &nrChannelsRock, 0);
+    if (!textureInfoRock) {
+        std::cerr << "Error al cargar la textura piedra" << std::endl;
+        stbi_image_free(textureInfo);
+        glfwTerminate();
+        return -1;
+    }
 
     // Crear y configurar texturas
     GLuint textureID, textureID2;
@@ -115,14 +115,14 @@ int main() {
     stbi_image_free(textureInfo);
 
     // Configurar segunda textura
-    /*glBindTexture(GL_TEXTURE_2D, textureID2);
+    glBindTexture(GL_TEXTURE_2D, textureID2);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, widthRock, heightRock, 0, GL_RGB, GL_UNSIGNED_BYTE, textureInfoRock);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glGenerateMipmap(GL_TEXTURE_2D);
-    stbi_image_free(textureInfoRock);*/
+    stbi_image_free(textureInfoRock);
 
     // Definimos color para limpiar el buffer de color
     glClearColor(0.f, 0.f, 0.f, 1.f);
