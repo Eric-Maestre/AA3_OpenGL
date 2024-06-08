@@ -17,7 +17,12 @@ public:
 	float velocity = 0.0005f;
 	float angularVelocity = -.05f;
 
-	void Update();
+	//movimiento en circulo
+	float radius = 0.f;
+	float angle = 0.f;
+
+
+	void Update(float deltaTime);
 };
 
 
