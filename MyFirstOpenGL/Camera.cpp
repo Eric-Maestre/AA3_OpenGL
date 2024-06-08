@@ -8,23 +8,21 @@ Camera::Camera()
 
 void Camera::Update()
 {
-	int stateNumber = IM.GetKey();
-
-	if (stateNumber == 57 || stateNumber == 77) //W
+	if (IM.GetWPressed()) //W
 	{
 		position.z += 0.1f;
 	}
-	if (stateNumber == 53 || stateNumber == 73) //S
+	else if (IM.GetSPressed()) //S
 	{
 		position.z -= 0.1f;
 	}
-	if (stateNumber == 41 || stateNumber == 61) //A
-	{
-		position.x -= 0.1f;
-	}
-	if (stateNumber == 44 || stateNumber == 64) //D
+	else if (IM.GetAPressed()) //A
 	{
 		position.x += 0.1f;
+	}
+	else if (IM.GetDPressed()) //D
+	{
+		position.x -= 0.1f;
 	}
 }
 
