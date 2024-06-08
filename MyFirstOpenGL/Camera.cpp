@@ -8,42 +8,24 @@ Camera::Camera()
 
 void Camera::Update()
 {
-	ChangeState();
-	
-	if (stateOrbita)
+	if (IM.GetWPressed()) //W
 	{
-
-}
-}
-
-void Camera::ChangeState()
-{
-	int stateNumber = IM.GetKey();;
-	
-	if (stateNumber == 1+48)
-	{
-		std::cout << "state 1" << std::endl;
-		bool stateOrbita = false;
-		bool stateGeneralThirdTroll = true;
-		bool stateDetalleSecondTroll = false;
-		bool stateDollyFirstTroll = false;
+		position.z += 0.1f;
 	}
-	if (stateNumber == 2+48)
+	else if (IM.GetSPressed()) //S
 	{
-		std::cout << "state 2" << std::endl;
-		bool stateOrbita = false;
-		bool stateGeneralThirdTroll = false;
-		bool stateDetalleSecondTroll = true;
-		bool stateDollyFirstTroll = false;
+		position.z -= 0.1f;
 	}
-	if (stateNumber == 3+48)
+	else if (IM.GetAPressed()) //A
 	{
-		std::cout << "state 3" << std::endl;
-		bool stateOrbita = false;
-		bool stateGeneralThirdTroll = false;
-		bool stateDetalleSecondTroll = false;
-		bool stateDollyFirstTroll = true;
+		position.x += 0.1f;
+	}
+	else if (IM.GetDPressed()) //D
+	{
+		position.x -= 0.1f;
+	}
 }
 
-}
+
+
 
