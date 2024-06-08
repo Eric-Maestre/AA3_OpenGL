@@ -8,42 +8,26 @@ Camera::Camera()
 
 void Camera::Update()
 {
-	ChangeState();
-	
-	if (stateOrbita)
-	{
+	int stateNumber = IM.GetKey();
 
-}
-}
-
-void Camera::ChangeState()
-{
-	int stateNumber = IM.GetKey();;
-	
-	if (stateNumber == 1+48)
+	if (stateNumber == 57 || stateNumber == 77) //W
 	{
-		std::cout << "state 1" << std::endl;
-		bool stateOrbita = false;
-		bool stateGeneralThirdTroll = true;
-		bool stateDetalleSecondTroll = false;
-		bool stateDollyFirstTroll = false;
+		position.z += 0.1f;
 	}
-	if (stateNumber == 2+48)
+	if (stateNumber == 53 || stateNumber == 73) //S
 	{
-		std::cout << "state 2" << std::endl;
-		bool stateOrbita = false;
-		bool stateGeneralThirdTroll = false;
-		bool stateDetalleSecondTroll = true;
-		bool stateDollyFirstTroll = false;
+		position.z -= 0.1f;
 	}
-	if (stateNumber == 3+48)
+	if (stateNumber == 41 || stateNumber == 61) //A
 	{
-		std::cout << "state 3" << std::endl;
-		bool stateOrbita = false;
-		bool stateGeneralThirdTroll = false;
-		bool stateDetalleSecondTroll = false;
-		bool stateDollyFirstTroll = true;
+		position.x -= 0.1f;
+	}
+	if (stateNumber == 44 || stateNumber == 64) //D
+	{
+		position.x += 0.1f;
+	}
 }
 
-}
+
+
 
