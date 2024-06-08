@@ -34,6 +34,15 @@ int main() {
     // Crear cámara
     Camera mainCamera;
 
+    //crear Sol
+    GameObject sunPointLight;
+
+    //crear Luna
+    GameObject moonPointLight;
+
+    //bool para enviar posicion sol o Luna
+    bool sunActive;
+
     // Definir semillas del rand según el tiempo
     srand(static_cast<unsigned int>(time(NULL)));
 
@@ -148,9 +157,23 @@ int main() {
     models[0].rotation = glm::vec3(0.f, 180.f, 0.f);
     models[0].scale = glm::vec3(0.4f);
 
+    sunPointLight.position = glm::vec3(0.f, 1.0f, 0.f);
+    sunPointLight.radius = 1.f;
+    sunPointLight.velocity = 18.f;
+
+    moonPointLight.position = glm::vec3(0.f, -1.f, 0.f);
+    moonPointLight.radius = 1.f;
+    moonPointLight.velocity = 18.f;
+
+
     for (int i = 0; i < models.size(); i++) {
         models[i].GenerateAllMatrixs();
     }
+
+    //variable para medir el tiempo
+    double lastTime = glfwGetTime();
+    double currentTime;
+    float deltaTime;
 
     // Generamos el game loop
     while (!glfwWindowShouldClose(window)) {
@@ -182,6 +205,41 @@ int main() {
 
         // Actualizar primer troll
         models[0].Update();
+
+        //calcular deltaTime
+        currentTime = glfwGetTime();
+        deltaTime = static_cast<float>(currentTime - lastTime);
+        lastTime = currentTime;
+
+        //Update de Sun
+        sunPointLight.Update(deltaTime);
+        moonPointLight.Update(deltaTime);
+
+        std::cout << sunPointLight.position.x << " " << sunPointLight.position.y << " " << sunPointLight.position.z << std::endl;
+
+        //pasar la sourceLight
+        if (sunPointLight.position.y < 0)
+            sunActive = false;
+        else
+            sunActive = true;
+        if (sunActive)
+        {
+            for (int i = 0; i < models.size(); i++)
+            {
+                glUniform3fv(glGetUniformLocation(models[i].GetProgram(), "sourceLight"), 1, glm::value_ptr(sunPointLight.position));
+                glUniform1i(glGetUniformLocation(models[i].GetProgram(), "moonActive"), false);
+            }
+        }
+        else if (!sunActive)
+        {
+            for (int i = 0; i < models.size(); i++)
+            {
+                glUniform3fv(glGetUniformLocation(models[i].GetProgram(), "sourceLight"), 1, glm::value_ptr(moonPointLight.position));
+                glUniform1i(glGetUniformLocation(models[i].GetProgram(), "moonActive"), true);
+            }
+
+        }
+
 
         // Cambiar buffers
         glfwSwapBuffers(window);
