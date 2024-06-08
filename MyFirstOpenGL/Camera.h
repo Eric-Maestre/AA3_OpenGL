@@ -17,20 +17,14 @@ public:
 	//vector para mover camera 
 	glm::vec3  moveCameraVector = glm::vec3(0.f);
 
-	//float para aumentar o disminuir fFoc, fNear y fFar
+	//float para aumentar o disminuir fFov, fNear y fFar
 	float addFFov = 0.f;
 	float addFNear = 0.f;
 	float addFFar = 0.f;
 
-	bool stateOrbita = false;
-	bool stateGeneralThirdTroll = false;
-	bool stateDetalleSecondTroll = false;
-	bool stateDollyFirstTroll = false;
-
 
 	Camera();
 	void Update();
-	void ChangeState();
 };
 
 
