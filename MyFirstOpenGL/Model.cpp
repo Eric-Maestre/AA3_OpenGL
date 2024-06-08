@@ -1,9 +1,10 @@
 #include "Model.h"
 
-Model::Model(std::string fragmentPath, std::string geometryPath, std::string vertexPath, std::string meshPath)
+Model::Model(std::string fragmentPath, std::string geometryPath, std::string vertexPath, std::string meshPath, std::string materialPath)
 {
 	compiledProgram = PM.CreationOfProgram(fragmentPath, geometryPath, vertexPath);
 	myMesh = LoadOBJMesh(meshPath);
+	LoadMaterial(materialPath);
 }
 
 void Model::GenerateAllMatrixs()
@@ -28,6 +29,9 @@ void Model::Update()
 	glUniformMatrix4fv(glGetUniformLocation(compiledProgram, "translationMatrix"), 1, GL_FALSE, glm::value_ptr(modelPosition));
 	glUniformMatrix4fv(glGetUniformLocation(compiledProgram, "rotationMatrix"), 1, GL_FALSE, glm::value_ptr(modelRotation));
 	glUniformMatrix4fv(glGetUniformLocation(compiledProgram, "scaleMatrix"), 1, GL_FALSE, glm::value_ptr(modelScale));
+	glUniform1f(glGetUniformLocation(compiledProgram, "opacity"), myMaterial.opacity);
+	glUniform3fv(glGetUniformLocation(compiledProgram, "ambient"), 1, glm::value_ptr(myMaterial.ambient));
+	glUniform3fv(glGetUniformLocation(compiledProgram, "diffuse"), 1, glm::value_ptr(myMaterial.diffuse));
 
 	myMesh.Render();
 }
@@ -158,4 +162,42 @@ glm::mat4 Model::GenerateScaleMatrix(glm::vec3 scale)
 {
 	return glm::scale(glm::mat4(1.f), scale);
 }
+
+void Model::LoadMaterial(std::string path)
+{
+	//cargamos el archivo que contiene el material
+	std::string materialInfo = PM.Load_File(path);
+
+	//declaro el material de forma temporal
+	Material material;
+
+	std::istringstream stream(materialInfo);
+	std::string line;
+
+	//Leo linea a linea
+	while (std::getline(stream, line))
+	{
+		std::istringstream lineStream(line);
+		std::string prefix;
+		lineStream >> prefix;
+
+		//Asignamos ambient
+		if (prefix == "Ka")
+			lineStream >> material.ambient.r >> material.ambient.g >> material.ambient.b;
+		//Asignamos diffuse
+		if (prefix == "Kd")
+			lineStream >> material.diffuse.r >> material.diffuse.g >> material.diffuse.b;
+		//Asignamos emisivo
+		if (prefix == "Ke")
+			lineStream >> material.emissive.r >> material.emissive.g >> material.emissive.b;
+		//Asignamos opacidad
+		if (prefix == "d")
+			lineStream >> material.opacity;
+
+	}
+
+	myMaterial = material;
+}
+
+
 

@@ -5,6 +5,15 @@
 #include "ProgramManager.h"
 #include "Mesh.h"
 
+struct Material
+{
+	glm::vec3 ambient = glm::vec3(0.f);
+	glm::vec3 diffuse = glm::vec3(0.f);
+	glm::vec3 emissive = glm::vec3(0.f);
+	float opacity = 1.f;
+
+};
+
 class Model : public GameObject
 {
 private:
@@ -12,6 +21,9 @@ private:
 	GLuint compiledProgram;
 	//Mesh
 	Mesh myMesh;
+
+	//Material
+	Material myMaterial;
 
 	//bool para el eje de rotacion
 	bool rotationAngleX = false;
@@ -31,8 +43,13 @@ private:
 	glm::mat4 GenerateScaleMatrix(glm::vec3 scale);
 
 
+	//cargar material
+	void LoadMaterial(std::string path);
+
+
+
 public:
-	Model(std::string fragmentPath, std::string geometryPath, std::string vertexPath, std::string meshPath);
+	Model(std::string fragmentPath, std::string geometryPath, std::string vertexPath, std::string meshPath, std::string materialPath);
 
 	void GenerateAllMatrixs();
 

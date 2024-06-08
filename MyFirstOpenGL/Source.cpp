@@ -25,203 +25,186 @@ int windowHeight = WINDOW_HEIGHT_DEFAULT;
 std::vector <Model> models;
 
 void Resize_Window(GLFWwindow* window, int iFrameBufferWidth, int iFrameBufferHeight) {
-
-	//Definir nuevo tamaño del viewport
-	glViewport(0, 0, iFrameBufferWidth, iFrameBufferHeight);
-
-	windowWidth = iFrameBufferWidth;
-	windowHeight = iFrameBufferHeight;
+    glViewport(0, 0, iFrameBufferWidth, iFrameBufferHeight);
+    windowWidth = iFrameBufferWidth;
+    windowHeight = iFrameBufferHeight;
 }
 
-void main() {
+int main() {
+    // Crear cámara
+    Camera mainCamera;
 
-	//Crear camara
-	Camera mainCamera;
+    // Definir semillas del rand según el tiempo
+    srand(static_cast<unsigned int>(time(NULL)));
 
-	//Definir semillas del rand según el tiempo
-	srand(static_cast<unsigned int>(time(NULL)));
+    // Inicializamos GLFW para gestionar ventanas e inputs
+    if (!glfwInit()) {
+        std::cerr << "Error al inicializar GLFW" << std::endl;
+        return -1;
+    }
 
-	//Inicializamos GLFW para gestionar ventanas e inputs
-	glfwInit();
+    // Configuramos la ventana
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
+    glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 
-	//Configuramos la ventana
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
-	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
+    // Inicializamos la ventana
+    GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "My Engine", NULL, NULL);
+    if (!window) {
+        std::cerr << "Error al crear la ventana" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
 
-	//Inicializamos la ventana
-	GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "My Engine", NULL, NULL);
+    // Iniciar Input Manager
+    IM.Init(window);
 
-	//Iniciar Input Manager
-	IM.Init(window);
+    // Asignamos función de callback para cuando el frame buffer es modificado
+    glfwSetFramebufferSizeCallback(window, Resize_Window);
 
-	//Asignamos función de callback para cuando el frame buffer es modificado
-	glfwSetFramebufferSizeCallback(window, Resize_Window);
+    // Definimos espacio de trabajo
+    glfwMakeContextCurrent(window);
 
-	//Definimos espacio de trabajo
-	glfwMakeContextCurrent(window);
+    // Permitimos a GLEW usar funcionalidades experimentales
+    glewExperimental = GL_TRUE;
 
-	//Permitimos a GLEW usar funcionalidades experimentales
-	glewExperimental = GL_TRUE;
+    // Inicializamos GLEW y controlamos errores
+    if (glewInit() != GLEW_OK) {
+        std::cerr << "Error al inicializar GLEW" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
 
-	//Activamos cull face
-	glEnable(GL_CULL_FACE);
+    // Activamos cull face
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
 
-	//Indicamos lado del culling
-	glCullFace(GL_BACK);
+    // Leer textura troll
+    int width, height, nrChannels;
+    unsigned char* textureInfo = stbi_load("Assets/Textures/troll.png", &width, &height, &nrChannels, 0);
+    if (!textureInfo) {
+        std::cerr << "Error al cargar la textura troll" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
 
-	//Leer textura troll
-	int width, height, nrChannels;
-	unsigned char* textureInfo = stbi_load("Assets/Textures/troll.png", &width, &height, &nrChannels, 0);
-	//Leer textura piedra
-	int widthRock, heightRock, nrChannelsRock;
-	unsigned char* textureInfoRock = stbi_load("Assets/Textures/rock.png", &widthRock, &heightRock, &nrChannelsRock, 0);
+    // Leer textura piedra
+    //int widthRock, heightRock, nrChannelsRock;
+    //unsigned char* textureInfoRock = stbi_load("Assets/Textures/rock.png", &widthRock, &heightRock, &nrChannelsRock, 0);
+    //if (!textureInfoRock) {
+    //    std::cerr << "Error al cargar la textura piedra" << std::endl;
+    //    stbi_image_free(textureInfo);
+    //    glfwTerminate();
+    //    return -1;
+    //}
 
-	//Inicializamos GLEW y controlamos errores
-	if (glewInit() == GLEW_OK) {
+    // Crear y configurar texturas
+    GLuint textureID, textureID2;
+    glGenTextures(1, &textureID);
+    glGenTextures(1, &textureID2);
 
-		//Compilar shaders
-		mainCamera.Update();
+    // Configurar primera textura
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, textureInfo);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    stbi_image_free(textureInfo);
 
-		//shader primer troll, color normal
-		models.push_back(Model("MyFirstFragmentShader.glsl" , "GeometryOfModels.glsl","MyFirstVertexShader.glsl" , "Assets/Models/troll.obj"));
+    // Configurar segunda textura
+    /*glBindTexture(GL_TEXTURE_2D, textureID2);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, widthRock, heightRock, 0, GL_RGB, GL_UNSIGNED_BYTE, textureInfoRock);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    stbi_image_free(textureInfoRock);*/
 
-		//Definimos canal de textura activo
-		glActiveTexture(GL_TEXTURE0);
+    // Definimos color para limpiar el buffer de color
+    glClearColor(0.f, 0.f, 0.f, 1.f);
 
-		//Genero textura
-		GLuint textureID;
-		glGenTextures(1, &textureID);
+    // Definimos modo de dibujo para cada cara
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-		//Vinculo textura con el canal de textura
-		glBindTexture(GL_TEXTURE_2D, textureID);
+    // Compilar shaders y cargar modelos
+    models.push_back(Model("MyFirstFragmentShader.glsl", "GeometryOfModels.glsl", "MyFirstVertexShader.glsl", "Assets/Models/troll.obj", "Assets/Materials/troll.mtl"));
+    
 
-		//Configurar textura
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    for (int i = 0; i < models.size(); i++) {
+        glUseProgram(models[i].GetProgram());
+        glUniform2f(glGetUniformLocation(models[i].GetProgram(), "windowSize"), windowWidth, windowHeight);
+    }
 
-		//Cargar datos de la imagen a la textura
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, textureInfo);
+    // Asignar valor variable textura a usar
+    glUseProgram(models[0].GetProgram());
+    glUniform1i(glGetUniformLocation(models[0].GetProgram(), "textureSampler"), 0);
 
-		//Generar mipmaps
-		glGenerateMipmap(GL_TEXTURE_2D);
+    // Matrices de transformación de los modelos
+    models[0].position = glm::vec3(0.f, -0.4f, 0.6f);
+    models[0].rotation = glm::vec3(0.f, 180.f, 0.f);
+    models[0].scale = glm::vec3(0.4f);
 
-		//Liberar recursos de memoria por la imagen cargada
-		stbi_image_free(textureInfo);
+    for (int i = 0; i < models.size(); i++) {
+        models[i].GenerateAllMatrixs();
+    }
 
-		//Generar segunda textura roca
-		GLuint textureID2;
-		glGenTextures(1, &textureID2);
+    // Generamos el game loop
+    while (!glfwWindowShouldClose(window)) {
+        // Pulleamos los eventos (botones, teclas, mouse...)
+        glfwPollEvents();
 
-		//vincular textura al espacio 1
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, textureID2);
+        // Input Manager Update
+        IM.Update();
 
-		//configurar textura
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        // Camara state
+        mainCamera.Update();
 
-		//cargar datos de la imagen a la textura
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, widthRock, heightRock, 0, GL_RGB, GL_UNSIGNED_BYTE, textureInfoRock);
+        // Depth test
+        glEnable(GL_DEPTH_TEST);
 
-		//generar mipmaps
-		glGenerateMipmap(GL_TEXTURE_2D);
+        // Limpiamos los buffers
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-		//liberar recursos
-		stbi_image_free(textureInfoRock);
+        // Matrices de la camara
+        glm::mat4 viewMatrix = glm::lookAt(mainCamera.position, mainCamera.position + glm::vec3(0.f, 0.f, 1.f), mainCamera.localVectorUp);
+        glm::mat4 projectionMatrix = glm::perspective(glm::radians(mainCamera.fFov), (float)windowWidth / (float)windowHeight, mainCamera.fNear, mainCamera.fFar);
 
-		//Definimos color para limpiar el buffer de color
-		glClearColor(0.f, 0.f, 0.f, 1.f);
+        // Pasar Uniforms
+        for (int i = 0; i < models.size(); i++) {
+            glUseProgram(models[i].GetProgram());
+            glUniformMatrix4fv(glGetUniformLocation(models[i].GetProgram(), "viewMatrix"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
+            glUniformMatrix4fv(glGetUniformLocation(models[i].GetProgram(), "projectionMatrix"), 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+        }
 
-		//Definimos modo de dibujo para cada cara
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        // Actualizar primer troll
+        models[0].Update();
 
-		//Indicar a la tarjeta GPU que programa debe usar
+        // Cambiar buffers
+        glfwSwapBuffers(window);
+    }
 
-		//Asignar valores iniciales al programa
-		for (int i = 0; i < models.size(); i++)
-		{
-			glUseProgram(models[i].GetProgram());
-			glUniform2f(glGetUniformLocation(models[i].GetProgram(), "windowSize"), windowWidth, windowHeight);
+    // Liberar recursos de cada modelo
+    for (int i = 0; i < models.size(); i++) {
+        glUseProgram(0);
+        glDeleteProgram(models[i].GetProgram());
+    }
 
-		}
+    // Eliminar texturas
+    glDeleteTextures(1, &textureID);
+    glDeleteTextures(1, &textureID2);
 
-		//Asignar valor variable textura a usar
-			glUseProgram(models[0].GetProgram());
-			glUniform1i(glGetUniformLocation(models[0].GetProgram(), "textureSampler"), 0);
+    // Finalizar GLFW
+    glfwTerminate();
 
-
-
-		//matrices de transformacion de los modelos
-		//primer troll, medio
-		models[0].position = glm::vec3(0.f,-0.4f, 0.6f);
-		models[0].rotation = glm::vec3(0.f, 180.f, 0.f);
-		models[0].scale = glm::vec3(0.4f);
-
-		for (int i = 0; i < models.size(); i++)
-			models[i].GenerateAllMatrixs();
-
-		//Generamos el game loop
-		while (!glfwWindowShouldClose(window)) {
-
-			//Pulleamos los eventos (botones, teclas, mouse...)
-			glfwPollEvents();
-
-			//Input Manager Update
-			IM.Update();
-
-			//camara state
-			mainCamera.Update();
-
-			//depth test
-			glEnable(GL_DEPTH_TEST);
-
-			//Limpiamos los buffers
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-			//matrices de la camara
-			glm::mat4 viewMatrix = glm::lookAt(mainCamera.position,mainCamera.position + glm::vec3(0.f,0.f,1.f), mainCamera.localVectorUp);
-
-			glm::mat4 projectionMatrix = glm::perspective(glm::radians(mainCamera.fFov), (float)windowWidth/(float)windowHeight, mainCamera.fNear, mainCamera.fFar);
-
-			//pasar Uniforms
-
-			//todos los modelos les afecta por igual la camara
-			for (int i = 0; i < models.size(); i++)
-			{
-				glUseProgram(models[i].GetProgram());
-				glUniformMatrix4fv(glGetUniformLocation(models[i].GetProgram(), "viewMatrix"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
-				glUniformMatrix4fv(glGetUniformLocation(models[i].GetProgram(), "projectionMatrix"), 1, GL_FALSE, glm::value_ptr(projectionMatrix));
-			}
-
-			//primer troll
-			models[0].Update();
-
-			//Cambiamos buffers
-			glFlush();
-			glfwSwapBuffers(window);
-		}
-
-		//Desactivar y eliminar programa
-		glUseProgram(0);
-		glDeleteProgram(models[0].GetProgram());
-		glDeleteProgram(models[1].GetProgram());
-		glDeleteProgram(models[2].GetProgram());
-
-
-
-	}
-	else {
-		std::cout << "Ha petao." << std::endl;
-		glfwTerminate();
-	}
-
-	//Finalizamos GLFW
-	glfwTerminate();
-
+    return 0;
 }
+
+
+
+
+
+
