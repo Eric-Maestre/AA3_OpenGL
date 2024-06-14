@@ -1,7 +1,7 @@
 #include "Model.h"
 #include <iostream>
 
-Model::Model(const std::vector<float>& vertexs, const std::vector<float>& uvs, const std::vector<float>& normals) {
+Mesh::Mesh(const std::vector<float>& vertexs, const std::vector<float>& uvs, const std::vector<float>& normals) {
     
     //Almaceno la cantidad de vertices que habra
     this->numVertexs = vertexs.size() / 3;
@@ -40,7 +40,7 @@ Model::Model(const std::vector<float>& vertexs, const std::vector<float>& uvs, c
     glBindVertexArray(0);  
 }
 
-void Model::Render() const {
+void Mesh::Render() const {
 
     //Vinculo su VAO para ser usado
     glBindVertexArray(this->VAO);

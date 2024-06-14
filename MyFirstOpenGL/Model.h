@@ -4,9 +4,9 @@
 #include <vector>
 #include <GL/glew.h>
 
-class Model {
+class Mesh {
 public:
-    Model(const std::vector<float>& vertexs, const std::vector<float>& uvs, const std::vector<float>& normals);
+    Mesh(const std::vector<float>& vertexs, const std::vector<float>& uvs, const std::vector<float>& normals);
     void Render() const;
 
 private:

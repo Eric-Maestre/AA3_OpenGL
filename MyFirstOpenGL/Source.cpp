@@ -30,7 +30,7 @@ struct Material
 };
 
 std::vector<GLuint> compiledPrograms;
-std::vector<Model> models;
+std::vector<Mesh> models;
 std::vector<Material> materials;
 
 void Resize_Window(GLFWwindow* window, int iFrameBufferWidth, int iFrameBufferHeight) {
@@ -41,7 +41,7 @@ void Resize_Window(GLFWwindow* window, int iFrameBufferWidth, int iFrameBufferHe
 }
 
 //Funcion que leera un .obj y devolvera un modelo para poder ser renderizado
-Model LoadOBJModel(const std::string& filePath) {
+Mesh LoadOBJModel(const std::string& filePath) {
 
 	//Verifico archivo y si no puedo abrirlo cierro aplicativo
 	std::ifstream file(filePath);
@@ -150,7 +150,7 @@ Model LoadOBJModel(const std::string& filePath) {
 			}
 		}
 	}
-	return Model(vertexs, textureCoordinates, vertexNormal);
+	return Mesh(vertexs, textureCoordinates, vertexNormal);
 }
 
 
