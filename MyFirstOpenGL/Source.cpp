@@ -9,7 +9,7 @@
 #include <vector>
 #include <sstream>
 #include <stb_image.h>
-#include "Model.h"
+#include "Mesh.h"
 
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480

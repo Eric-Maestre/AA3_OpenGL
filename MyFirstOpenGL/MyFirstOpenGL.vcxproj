@@ -21,7 +21,7 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="InputManager.cpp" />
-    <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Stb.cpp" />
     <ClCompile Include="TimeManager.cpp" />
@@ -35,7 +35,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="InputManager.h" />
-    <ClInclude Include="Model.h" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="TimeManager.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
