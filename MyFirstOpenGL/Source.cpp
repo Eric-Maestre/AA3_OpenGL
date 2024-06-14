@@ -11,18 +11,12 @@
 #include <stb_image.h>
 #include "Mesh.h"
 #include "ProgramManager.h"
+#include "Material.h"
 
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480
 
-struct Material
-{
-	glm::vec3 ambient = glm::vec3(0.f);
-	glm::vec3 diffuse = glm::vec3(0.f);
-	glm::vec3 emissive = glm::vec3(0.f);
-	float opacity = 1.f;
 
-};
 
 std::vector<GLuint> compiledPrograms;
 std::vector<Mesh> models;
@@ -150,41 +144,7 @@ Mesh LoadOBJModel(const std::string& filePath) {
 
 
 
-Material LoadMaterial(std::string path)
-{
-	//cargamos el archivo que contiene el material
-	std::string materialInfo = PM.Load_File(path);
 
-	//declaro el material de forma temporal
-	Material material;
-
-	std::istringstream stream(materialInfo);
-	std::string line;
-
-	//Leo linea a linea
-	while (std::getline(stream, line))
-	{
-		std::istringstream lineStream(line);
-		std::string prefix;
-		lineStream >> prefix;
-
-		//Asignamos ambient
-		if (prefix == "Ka")
-			lineStream >> material.ambient.r >> material.ambient.g >> material.ambient.b;
-		//Asignamos diffuse
-		if (prefix == "Kd")
-			lineStream >> material.diffuse.r >> material.diffuse.g >> material.diffuse.b;
-		//Asignamos emisivo
-		if (prefix == "Ke")
-			lineStream >> material.emissive.r >> material.emissive.g >> material.emissive.b;
-		//Asignamos opacidad
-		if (prefix == "d")
-			lineStream >> material.opacity;
-
-	}
-
-	return material;
-}
 
 
 void main() {
@@ -248,7 +208,7 @@ void main() {
 		compiledPrograms.push_back(PM.CreateProgram(myFirstProgram));
 
 		//Compilar materiales
-		materials.push_back(LoadMaterial("Assets/Materials/troll.mtl"));
+		materials.push_back(Material::LoadMaterial("Assets/Materials/troll.mtl"));
 
 		//Definimos canal de textura activo
 		glActiveTexture(GL_TEXTURE0);
