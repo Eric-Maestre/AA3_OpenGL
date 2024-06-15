@@ -32,6 +32,12 @@ void Resize_Window(GLFWwindow* window, int iFrameBufferWidth, int iFrameBufferHe
 	windowHeight = iFrameBufferHeight;
 }
 
+void EnsureMin(float component, float minValue)
+{
+	if (component < minValue)
+		component = minValue;
+}
+
 
 void main() {
 
@@ -150,19 +156,6 @@ void main() {
 		//Asignar valor variable de textura a usar.
 		glUniform1i(glGetUniformLocation(compiledPrograms[0], "textureSampler"), 0);
 
-		// Pasar las matrices
-		glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[0], "translationMatrix"), 1, GL_FALSE, glm::value_ptr(translationMatrix));
-		glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[0], "rotationMatrix"), 1, GL_FALSE, glm::value_ptr(rotationMatrix));
-		glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[0], "scaleMatrix"), 1, GL_FALSE, glm::value_ptr(scaleMatrix));
-		glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[0], "view"), 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[0], "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-
-		//Pasar los valores del material
-		glUniform1f(glGetUniformLocation(compiledPrograms[0], "opacity"), materials[0].opacity);
-		glUniform3fv(glGetUniformLocation(compiledPrograms[0], "ambient"), 1, glm::value_ptr(materials[0].ambient));
-		glUniform3fv(glGetUniformLocation(compiledPrograms[0], "diffuse"), 1, glm::value_ptr(materials[0].diffuse));
-
-
 		//Generamos el game loop
 		while (!glfwWindowShouldClose(window)) {
 
@@ -171,6 +164,25 @@ void main() {
 			
 			//Limpiamos los buffers
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+			for (int i = 0; i < materials.size(); i++)
+			{
+				EnsureMin(materials[i].ambient.r, 0.15f);
+				EnsureMin(materials[i].ambient.g, 0.15f);
+				EnsureMin(materials[i].ambient.b, 0.15f); 
+			}
+
+			// Pasar las matrices
+			glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[0], "translationMatrix"), 1, GL_FALSE, glm::value_ptr(translationMatrix));
+			glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[0], "rotationMatrix"), 1, GL_FALSE, glm::value_ptr(rotationMatrix));
+			glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[0], "scaleMatrix"), 1, GL_FALSE, glm::value_ptr(scaleMatrix));
+			glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[0], "view"), 1, GL_FALSE, glm::value_ptr(view));
+			glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[0], "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+			//Pasar los valores del material
+			glUniform1f(glGetUniformLocation(compiledPrograms[0], "opacity"), materials[0].opacity);
+			glUniform3fv(glGetUniformLocation(compiledPrograms[0], "ambient"), 1, glm::value_ptr(materials[0].ambient));
+			glUniform3fv(glGetUniformLocation(compiledPrograms[0], "diffuse"), 1, glm::value_ptr(materials[0].diffuse));
 
 			//Renderizo objeto 0
 			models[0].Render();
