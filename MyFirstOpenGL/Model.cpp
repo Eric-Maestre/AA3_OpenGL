@@ -30,6 +30,10 @@ void Model::Update()
 	glUniformMatrix4fv(glGetUniformLocation(compiledProgram, "rotationMatrix"), 1, GL_FALSE, glm::value_ptr(modelRotation));
 	glUniformMatrix4fv(glGetUniformLocation(compiledProgram, "scaleMatrix"), 1, GL_FALSE, glm::value_ptr(modelScale));
 
+	glUniform1f(glGetUniformLocation(compiledProgram, "opacity"), myMaterial.opacity);
+	glUniform3fv(glGetUniformLocation(compiledProgram, "ambient"), 1, glm::value_ptr(myMaterial.ambient));
+	glUniform3fv(glGetUniformLocation(compiledProgram, "diffuse"), 1, glm::value_ptr(myMaterial.diffuse));
+
 	myMesh.Render();
 }
 

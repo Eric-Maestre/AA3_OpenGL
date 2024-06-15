@@ -13,6 +13,7 @@
 #include "ProgramManager.h"
 #include "Material.h"
 #include "Camera.h"
+#include "Model.h"
 
 #define WINDOW_WIDTH_DEFAULT 640
 #define WINDOW_HEIGHT_DEFAULT 480
@@ -20,9 +21,8 @@
 int windowWidth = WINDOW_WIDTH_DEFAULT;
 int windowHeight = WINDOW_HEIGHT_DEFAULT;
 
-std::vector<GLuint> compiledPrograms;
-std::vector<Mesh> models;
-std::vector<Material> materials;
+std::vector<Model> models;
+
 
 void Resize_Window(GLFWwindow* window, int iFrameBufferWidth, int iFrameBufferHeight) {
 	//Definir nuevo tamaño del viewport
@@ -84,20 +84,8 @@ void main() {
 		//crear camara
 		Camera mainCamera;
 
-		//Compilar shaders
-		ShaderProgram myFirstProgram;
-		myFirstProgram.vertexShader = PM.LoadVertexShader("MyFirstVertexShader.glsl");
-		myFirstProgram.geometryShader = PM.LoadGeometryShader("MyFirstGeometryShader.glsl");
-		myFirstProgram.fragmentShader = PM.LoadFragmentShader("MyFirstFragmentShader.glsl");
-
-		//Cargo Modelo
-		models.push_back(Mesh::LoadOBJMesh("Assets/Models/troll.obj"));
-
-		//Compilar programa
-		compiledPrograms.push_back(PM.CreateProgram(myFirstProgram));
-
-		//Compilar materiales
-		materials.push_back(Material::LoadMaterial("Assets/Materials/troll.mtl"));
+		//crear modelos
+		models.push_back(Model("MyFirstFragmentShader.glsl", "MyFirstGeometryShader.glsl", "MyFirstVertexShader.glsl", "Assets/Models/troll.obj", "Assets/Materials/troll.mtl"));
 
 		//Definimos canal de textura activo
 		glActiveTexture(GL_TEXTURE0);
@@ -131,12 +119,11 @@ void main() {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 		//Indicar a la tarjeta GPU que programa debe usar
-		glUseProgram(compiledPrograms[0]);
+		glUseProgram(models[0].GetProgram());
 
-		//Definir la matriz de traslacion, rotacion y escalado
-		glm::mat4 translationMatrix = glm::translate(glm::mat4(1.f), glm::vec3(0.f,0.f,1.f));
-		glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(180.f), glm::vec3(0.f, 1.f, 0.f));
-		glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.f), glm::vec3(1.f));
+		models[0].position = glm::vec3(0.f, 0.f, 1.f);
+		models[0].rotation = glm::vec3(0.f, 180.f, 0.f);
+		models[0].scale = glm::vec3(1.f);
 
 		// Definir la matriz de vista
 		glm::mat4 view = glm::lookAt(mainCamera.position, glm::vec3(0.0f, 1.0f, 0.f), mainCamera.localVectorUp);
@@ -145,22 +132,17 @@ void main() {
 		glm::mat4 projection = glm::perspective(glm::radians(mainCamera.fFov), (float)windowWidth / (float)windowHeight, mainCamera.fNear, mainCamera.fFar);
 
 		//Asignar valores iniciales al programa
-		glUniform2f(glGetUniformLocation(compiledPrograms[0], "windowSize"), windowWidth, windowHeight);
+		glUniform2f(glGetUniformLocation(models[0].GetProgram(), "windowSize"), windowWidth, windowHeight);
 
 		//Asignar valor variable de textura a usar.
-		glUniform1i(glGetUniformLocation(compiledPrograms[0], "textureSampler"), 0);
+		glUniform1i(glGetUniformLocation(models[0].GetProgram(), "textureSampler"), 0);
 
 		// Pasar las matrices
-		glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[0], "translationMatrix"), 1, GL_FALSE, glm::value_ptr(translationMatrix));
-		glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[0], "rotationMatrix"), 1, GL_FALSE, glm::value_ptr(rotationMatrix));
-		glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[0], "scaleMatrix"), 1, GL_FALSE, glm::value_ptr(scaleMatrix));
-		glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[0], "view"), 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[0], "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(glGetUniformLocation(models[0].GetProgram(), "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(models[0].GetProgram(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
 		//Pasar los valores del material
-		glUniform1f(glGetUniformLocation(compiledPrograms[0], "opacity"), materials[0].opacity);
-		glUniform3fv(glGetUniformLocation(compiledPrograms[0], "ambient"), 1, glm::value_ptr(materials[0].ambient));
-		glUniform3fv(glGetUniformLocation(compiledPrograms[0], "diffuse"), 1, glm::value_ptr(materials[0].diffuse));
+
 
 
 		//Generamos el game loop
@@ -173,7 +155,7 @@ void main() {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 			//Renderizo objeto 0
-			models[0].Render();
+			models[0].Update();
 
 			//Cambiamos buffers
 			glFlush();
@@ -182,7 +164,7 @@ void main() {
 
 		//Desactivar y eliminar programa
 		glUseProgram(0);
-		glDeleteProgram(compiledPrograms[0]);
+		glDeleteProgram(models[0].GetProgram());
 
 	}
 	else {

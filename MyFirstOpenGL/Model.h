@@ -35,13 +35,16 @@ public:
 
 	void GenerateAllMatrixs();
 
-	GLuint GetProgram() { return compiledProgram; }
-
 	void Update();
 
 	void SetRotationAngleX() { rotationAngleX = true; rotationAngleY = false; rotationAngleZ = false; }
 	void SetRotationAngleY() { rotationAngleX = false; rotationAngleY = true; rotationAngleZ = false; }
 	void SetRotationAngleZ() { rotationAngleX = false; rotationAngleY = false; rotationAngleZ = true; }
+
+	//getters
+
+	GLuint GetProgram() { return compiledProgram; }
+	Material GetMaterial() { return myMaterial; }
 
 };
 
