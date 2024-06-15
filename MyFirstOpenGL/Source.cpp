@@ -168,8 +168,6 @@ void main() {
 
 			//Pulleamos los eventos (botones, teclas, mouse...)
 			glfwPollEvents();
-
-			std::cout << materials[0].ambient.r << " " << materials[0].ambient.g << " " << materials[0].ambient.b << std::endl;
 			
 			//Limpiamos los buffers
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
