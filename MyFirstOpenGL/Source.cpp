@@ -13,27 +13,23 @@
 #include "ProgramManager.h"
 #include "Material.h"
 
-#define WINDOW_WIDTH 640
-#define WINDOW_HEIGHT 480
+#define WINDOW_WIDTH_DEFAULT 640
+#define WINDOW_HEIGHT_DEFAULT 480
 
-
+int windowWidth = WINDOW_WIDTH_DEFAULT;
+int windowHeight = WINDOW_HEIGHT_DEFAULT;
 
 std::vector<GLuint> compiledPrograms;
 std::vector<Mesh> models;
 std::vector<Material> materials;
 
 void Resize_Window(GLFWwindow* window, int iFrameBufferWidth, int iFrameBufferHeight) {
-
 	//Definir nuevo tamaño del viewport
 	glViewport(0, 0, iFrameBufferWidth, iFrameBufferHeight);
-	glUniform2f(glGetUniformLocation(compiledPrograms[0], "windowSize"), iFrameBufferWidth, iFrameBufferHeight);
+
+	windowWidth = iFrameBufferWidth;
+	windowHeight = iFrameBufferHeight;
 }
-
-
-
-
-
-
 
 
 void main() {
@@ -51,7 +47,7 @@ void main() {
 	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 
 	//Inicializamos la ventana
-	GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "My Engine", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "My Engine", NULL, NULL);
 
 	//Asignamos función de callback para cuando el frame buffer es modificado
 	glfwSetFramebufferSizeCallback(window, Resize_Window);
@@ -142,10 +138,10 @@ void main() {
 		glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 1.0f, 5.0f), glm::vec3(0.0f, 1.0f, 0.f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 		// Definir la matriz proyeccion
-		glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
+		glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)windowWidth / (float)windowHeight, 0.1f, 100.0f);
 
 		//Asignar valores iniciales al programa
-		glUniform2f(glGetUniformLocation(compiledPrograms[0], "windowSize"), WINDOW_WIDTH, WINDOW_HEIGHT);
+		glUniform2f(glGetUniformLocation(compiledPrograms[0], "windowSize"), windowWidth, windowHeight);
 
 		//Asignar valor variable de textura a usar.
 		glUniform1i(glGetUniformLocation(compiledPrograms[0], "textureSampler"), 0);
