@@ -13,6 +13,7 @@
 #include "ProgramManager.h"
 #include "Material.h"
 #include "Camera.h"
+#include "OribitalObject.h"
 
 #define WINDOW_WIDTH_DEFAULT 640
 #define WINDOW_HEIGHT_DEFAULT 480
@@ -90,6 +91,15 @@ void main() {
 		//crear camara
 		Camera mainCamera;
 
+		//Crear Sol
+		OribitalObject sunPointLight;
+
+		//Crear Luna
+		OribitalObject moonPointLight;
+
+		//bool para saber quien esta arriba
+		bool sunActive;
+
 		//Compilar shaders
 		ShaderProgram myFirstProgram;
 		myFirstProgram.vertexShader = PM.LoadVertexShader("MyFirstVertexShader.glsl");
@@ -144,17 +154,29 @@ void main() {
 		glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(180.f), glm::vec3(0.f, 1.f, 0.f));
 		glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.f), glm::vec3(1.f));
 
-		// Definir la matriz de vista
-		glm::mat4 view = glm::lookAt(mainCamera.position, glm::vec3(0.0f, 1.0f, 0.f), mainCamera.localVectorUp);
+		sunPointLight.position = glm::vec3(0.f, 1.0f, 0.f);
+		sunPointLight.radius = 1.f;
+		sunPointLight.velocity = 18.f;
 
-		// Definir la matriz proyeccion
-		glm::mat4 projection = glm::perspective(glm::radians(mainCamera.fFov), (float)windowWidth / (float)windowHeight, mainCamera.fNear, mainCamera.fFar);
+		moonPointLight.position = glm::vec3(0.f, -1.f, 0.f);
+		moonPointLight.radius = 1.f;
+		moonPointLight.velocity = 18.f;
+		
+		//variable para medir el tiempo 
+		double lastTime = glfwGetTime();
+		double currentTime;
+		float deltaTime;
+		
 
 		//Asignar valores iniciales al programa
 		glUniform2f(glGetUniformLocation(compiledPrograms[0], "windowSize"), windowWidth, windowHeight);
 
 		//Asignar valor variable de textura a usar.
 		glUniform1i(glGetUniformLocation(compiledPrograms[0], "textureSampler"), 0);
+
+		//crear view y projection
+		glm::mat4 view;
+		glm::mat4 projection;
 
 		//Generamos el game loop
 		while (!glfwWindowShouldClose(window)) {
@@ -171,6 +193,46 @@ void main() {
 				EnsureMin(materials[i].ambient.g, 0.15f);
 				EnsureMin(materials[i].ambient.b, 0.15f); 
 			}
+
+			//calcular deltaTime 
+			currentTime = glfwGetTime();
+			deltaTime = static_cast<float>(currentTime - lastTime);
+			lastTime = currentTime;
+
+			//Update de Sun 
+			sunPointLight.Update(deltaTime);
+			moonPointLight.Update(deltaTime);
+
+			std::cout << sunPointLight.position.x << " " << sunPointLight.position.y << " " << sunPointLight.position.z << std::endl;
+
+			//pasar la sourceLight 
+			if (sunPointLight.position.y < 0)
+				sunActive = false;
+			else
+				sunActive = true;
+			if (sunActive)
+			{
+				for (int i = 0; i < compiledPrograms.size(); i++)
+				{
+					glUniform3fv(glGetUniformLocation(compiledPrograms[i], "sourceLight"), 1, glm::value_ptr(sunPointLight.position));
+					glUniform1i(glGetUniformLocation(compiledPrograms[i], "moonActive"), false);
+				}
+			}
+			else if (!sunActive)
+			{
+				for (int i = 0; i < compiledPrograms.size(); i++)
+				{
+					glUniform3fv(glGetUniformLocation(compiledPrograms[i], "sourceLight"), 1, glm::value_ptr(moonPointLight.position));
+					glUniform1i(glGetUniformLocation(compiledPrograms[i], "moonActive"), true);
+				}
+
+			}
+
+			// Definir la matriz de vista
+			view = glm::lookAt(mainCamera.position, glm::vec3(0.0f, 1.0f, 0.f), mainCamera.localVectorUp);
+
+			// Definir la matriz proyeccion
+			projection = glm::perspective(glm::radians(mainCamera.fFov), (float)windowWidth / (float)windowHeight, mainCamera.fNear, mainCamera.fFar);
 
 			// Pasar las matrices
 			glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[0], "translationMatrix"), 1, GL_FALSE, glm::value_ptr(translationMatrix));

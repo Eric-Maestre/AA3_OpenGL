@@ -13,12 +13,15 @@ uniform float opacity;
 uniform vec3 ambient;
 uniform vec3 diffuse;
 
+uniform vec3 sourceLight;
+
+uniform bool moonActive = false; 
+
 void main() {
         
         vec2 adjustedTexCoord = vec2(uvsFragmentShader.x, 1.0 - uvsFragmentShader.y);
         vec4 baseColor = texture(textureSampler, adjustedTexCoord);
 
-        vec3 sourceLight = vec3(0, 0, 1);
         vec3 lightDirection = normalize(sourceLight - primitivePosition.xyz);
         float sourceLightAngle = dot(normalsFragmentShader, lightDirection);
 
