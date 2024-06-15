@@ -14,6 +14,7 @@
 #include "Material.h"
 #include "Camera.h"
 #include "OribitalObject.h"
+#include "TimeManager.h"
 
 #define WINDOW_WIDTH_DEFAULT 640
 #define WINDOW_HEIGHT_DEFAULT 480
@@ -91,6 +92,9 @@ void main() {
 		//crear camara
 		Camera mainCamera;
 
+		//crear Time Manager, definir el tiempo del ciclo (20 segundos)
+		TimeManager timeManager(20.0f);
+
 		//Crear Sol
 		OribitalObject sunPointLight;
 
@@ -154,11 +158,13 @@ void main() {
 		glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(180.f), glm::vec3(0.f, 1.f, 0.f));
 		glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.f), glm::vec3(1.f));
 
-		sunPointLight.position = glm::vec3(0.f, 1.0f, 0.f);
+		//18.f, 18 grados por segundo
+		//10 segundos mitad del ciclo y 180 grados
+		sunPointLight.position = glm::vec3(-1.f, 0.f, 0.f);
 		sunPointLight.radius = 1.f;
 		sunPointLight.velocity = 18.f;
 
-		moonPointLight.position = glm::vec3(0.f, -1.f, 0.f);
+		moonPointLight.position = glm::vec3(1.f, 0.f, 0.f);
 		moonPointLight.radius = 1.f;
 		moonPointLight.velocity = 18.f;
 		
@@ -194,38 +200,36 @@ void main() {
 				EnsureMin(materials[i].ambient.b, 0.15f); 
 			}
 
-			//calcular deltaTime 
+			// Calcular deltaTime
 			currentTime = glfwGetTime();
 			deltaTime = static_cast<float>(currentTime - lastTime);
 			lastTime = currentTime;
 
-			//Update de Sun 
+			// Actualizar el TimeManager
+			timeManager.Update(deltaTime);
+
+			// Actualizar los objetos orbitales
 			sunPointLight.Update(deltaTime);
 			moonPointLight.Update(deltaTime);
 
-			std::cout << sunPointLight.position.x << " " << sunPointLight.position.y << " " << sunPointLight.position.z << std::endl;
+			glm::vec3 sourceLightPosition;
+			bool moonActive;
 
-			//pasar la sourceLight 
-			if (sunPointLight.position.y < 0)
-				sunActive = false;
-			else
-				sunActive = true;
-			if (sunActive)
+			if (timeManager.IsDay())
 			{
-				for (int i = 0; i < compiledPrograms.size(); i++)
-				{
-					glUniform3fv(glGetUniformLocation(compiledPrograms[i], "sourceLight"), 1, glm::value_ptr(sunPointLight.position));
-					glUniform1i(glGetUniformLocation(compiledPrograms[i], "moonActive"), false);
-				}
+				sourceLightPosition = sunPointLight.position;
+				moonActive = false;
 			}
-			else if (!sunActive)
+			else
 			{
-				for (int i = 0; i < compiledPrograms.size(); i++)
-				{
-					glUniform3fv(glGetUniformLocation(compiledPrograms[i], "sourceLight"), 1, glm::value_ptr(moonPointLight.position));
-					glUniform1i(glGetUniformLocation(compiledPrograms[i], "moonActive"), true);
-				}
+				sourceLightPosition = moonPointLight.position;
+				moonActive = true;
+			}
 
+			for (int i = 0; i < compiledPrograms.size(); i++)
+			{
+				glUniform3fv(glGetUniformLocation(compiledPrograms[i], "sourceLight"), 1, glm::value_ptr(sourceLightPosition));
+				glUniform1i(glGetUniformLocation(compiledPrograms[i], "moonActive"), moonActive);
 			}
 
 			// Definir la matriz de vista
