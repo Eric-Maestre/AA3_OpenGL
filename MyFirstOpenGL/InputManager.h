@@ -17,15 +17,18 @@ private:
 	int lastKeyPressed;
 
 	//bools teclas WASD
-	bool wPressed;
-	bool aPressed;
-	bool sPressed;
-	bool dPressed;
+	bool wPressed, aPressed, sPressed, dPressed;
 
 	InputManager() = default;
 	InputManager(InputManager&) = delete;
 	InputManager& operator= (const InputManager&) = delete;
 
+	//variables para el ratón
+	static float lastX, lastY;
+	static bool firstMouse;
+	static float yaw, pitch;
+
+	static void ProcessMouseMovement(float xoffset, float yoffset);
 
 public:
 
@@ -49,6 +52,12 @@ public:
 	bool GetAPressed() { return aPressed; }
 	bool GetSPressed() { return sPressed; }
 	bool GetDPressed() { return dPressed; }
+
+	static void MouseCallback(GLFWwindow* window, double xpos, double ypos);
+
+	//getters de yaw y Pitch
+	static float GetYaw() { return yaw; }
+	static float GetPitch() { return pitch; }
 
 };
 

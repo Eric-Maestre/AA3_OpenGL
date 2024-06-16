@@ -1,5 +1,11 @@
 #include "InputManager.h"
 
+float InputManager::lastX = 400.0f; 
+float InputManager::lastY = 300.0f; 
+bool InputManager::firstMouse = true;
+float InputManager::yaw = -90.0f; 
+float InputManager::pitch = 0.0f;
+
 void InputManager::Init(GLFWwindow* window)
 {
 	this->window = window;
@@ -12,6 +18,10 @@ void InputManager::Init(GLFWwindow* window)
 	aPressed = false;
 	sPressed = false;
 	dPressed = false;
+
+	//configurar callback del raton
+	glfwSetCursorPosCallback(window, MouseCallback);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
 void InputManager::Update()
@@ -43,4 +53,37 @@ void InputManager::Update()
 	dPressed = (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS);
 
 	
+}
+
+void InputManager::MouseCallback(GLFWwindow* window, double xpos, double ypos)
+{
+	if (firstMouse) {
+		lastX = xpos;
+		lastY = ypos;
+		firstMouse = false;
+	}
+
+	float xoffset = xpos - lastX;
+	float yoffset = lastY - ypos; // Coordenadas invertidas en Y
+
+	lastX = xpos;
+	lastY = ypos;
+
+	ProcessMouseMovement(xoffset, yoffset);
+}
+
+void InputManager::ProcessMouseMovement(float xoffset, float yoffset)
+{
+	const float sensitivity = 0.3f;
+	xoffset *= sensitivity;
+	yoffset *= sensitivity;
+
+	yaw += xoffset;
+	pitch += yoffset;
+
+	// Asegurarse de que pitch no exceda los límites
+	if (pitch > 89.0f)
+		pitch = 89.0f;
+	if (pitch < -89.0f)
+		pitch = -89.0f;
 }

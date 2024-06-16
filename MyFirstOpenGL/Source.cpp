@@ -248,7 +248,7 @@ void main() {
 			}
 
 			// Definir la matriz de vista
-			view = glm::lookAt(mainCamera.position, mainCamera.position + glm::vec3(0.f,0.f,1.f), mainCamera.localVectorUp);
+			view = glm::lookAt(mainCamera.position, mainCamera.directionOfView, mainCamera.localVectorUp);
 
 			// Definir la matriz proyeccion
 			projection = glm::perspective(glm::radians(mainCamera.fFov), (float)windowWidth / (float)windowHeight, mainCamera.fNear, mainCamera.fFar);
@@ -269,7 +269,7 @@ void main() {
 			models[0].Render();
 
 			//Update Camera
-			mainCamera.Update();
+			mainCamera.Update(IM.GetYaw(), IM.GetPitch());
 
 			//Cambiamos buffers
 			glFlush();
