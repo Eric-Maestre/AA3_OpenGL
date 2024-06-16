@@ -1,5 +1,11 @@
 #include "InputManager.h"
 
+float InputManager::lastX = 400.0f; 
+float InputManager::lastY = 300.0f; 
+bool InputManager::firstMouse = true;
+float InputManager::yaw = -90.0f; 
+float InputManager::pitch = 0.0f;
+
 void InputManager::Init(GLFWwindow* window)
 {
 	this->window = window;
@@ -7,6 +13,15 @@ void InputManager::Init(GLFWwindow* window)
 	lastKeyPressed = -1;
 	keyPressed = -1;
 	key = -1;
+
+	wPressed = false;
+	aPressed = false;
+	sPressed = false;
+	dPressed = false;
+
+	//configurar callback del raton
+	glfwSetCursorPosCallback(window, MouseCallback);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
 void InputManager::Update()
@@ -20,8 +35,6 @@ void InputManager::Update()
 		keyPressed = GLFW_KEY_1;
 	else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
 		keyPressed = GLFW_KEY_2;
-	else if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
-		keyPressed = GLFW_KEY_3;
 
 	//comprobar ultima tecla pulsada y actual
 	//si la actual es 0 y la ultima es != 0, la tecla ha sido pulsada y soltada
@@ -31,5 +44,63 @@ void InputManager::Update()
 		key = lastKeyPressed;
 	}
 
+	//a diferencia de otras teclas, WASD se mantienen para mayora comodidad
+	wPressed = (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS);
+	aPressed = (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS);
+	sPressed = (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS);
+	dPressed = (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS);
 
+}
+
+void InputManager::MouseCallback(GLFWwindow* window, double xpos, double ypos)
+{
+
+	//cursor habilitado, sin movimiento
+	if (IM.IsCursorEnabled()) {
+		return;
+	}
+
+
+	if (firstMouse) {
+		lastX = xpos;
+		lastY = ypos;
+		firstMouse = false;
+	}
+
+	float xoffset = xpos - lastX;
+	float yoffset = lastY - ypos; // Coordenadas invertidas en Y
+
+	lastX = xpos;
+	lastY = ypos;
+
+	ProcessMouseMovement(xoffset, yoffset);
+}
+
+void InputManager::EnableCursor()
+{
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	cursorEnabled = true;
+}
+
+void InputManager::DisableCursor()
+{
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	cursorEnabled = false;
+}
+
+void InputManager::ProcessMouseMovement(float xoffset, float yoffset)
+{
+
+	const float sensitivity = 0.3f;
+	xoffset *= sensitivity;
+	yoffset *= sensitivity;
+
+	yaw += xoffset;
+	pitch += yoffset;
+
+	// Asegurarse de que pitch no exceda los límites
+	if (pitch > 89.0f)
+		pitch = 89.0f;
+	if (pitch < -89.0f)
+		pitch = -89.0f;
 }
