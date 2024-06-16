@@ -104,6 +104,13 @@ void main() {
 		//bool para saber quien esta arriba
 		bool sunActive;
 
+		//valores ambientales globales
+		glm::vec3 ambientDay(0.7f, 0.7f, 0.7f); 
+		//más realismo, iluminacion luna depende SOl
+		//en la vida real refleja luz del sol
+		float factorReflection = 0.4f;
+		glm::vec3 ambientNight = factorReflection * ambientDay;
+
 		//Compilar shaders
 		ShaderProgram myFirstProgram;
 		myFirstProgram.vertexShader = PM.LoadVertexShader("MyFirstVertexShader.glsl");
@@ -230,6 +237,8 @@ void main() {
 			{
 				glUniform3fv(glGetUniformLocation(compiledPrograms[i], "sourceLight"), 1, glm::value_ptr(sourceLightPosition));
 				glUniform1i(glGetUniformLocation(compiledPrograms[i], "moonActive"), moonActive);
+				glUniform3fv(glGetUniformLocation(compiledPrograms[i], "ambientDay"), 1, glm::value_ptr(ambientDay));
+				glUniform3fv(glGetUniformLocation(compiledPrograms[i], "ambientNight"), 1, glm::value_ptr(ambientNight));
 			}
 
 			// Definir la matriz de vista

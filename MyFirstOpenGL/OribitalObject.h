@@ -11,6 +11,9 @@ public:
 	float radius = 0.f;
 	float angle = 0.f;
 
+	//giro en sentido contrario
+	bool reverse;
+
 
 	void Update(float deltaTime);
 };
