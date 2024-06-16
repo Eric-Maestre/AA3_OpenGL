@@ -35,6 +35,8 @@ void InputManager::Update()
 		keyPressed = GLFW_KEY_1;
 	else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
 		keyPressed = GLFW_KEY_2;
+	else if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
+		keyPressed = GLFW_KEY_F;
 
 	//comprobar ultima tecla pulsada y actual
 	//si la actual es 0 y la ultima es != 0, la tecla ha sido pulsada y soltada
