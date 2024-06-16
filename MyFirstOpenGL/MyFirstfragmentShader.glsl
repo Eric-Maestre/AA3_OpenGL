@@ -22,6 +22,13 @@ uniform bool moonActive = false;
 uniform vec3 ambientDay;
 uniform vec3 ambientNight;
 
+//parametros flashlight
+uniform vec3 cameraPosition;
+uniform vec3 cameraDirection;
+uniform float cameraAngle;
+
+uniform bool flashlightOn;
+
 void main() {
         
         vec2 adjustedTexCoord = vec2(uvsFragmentShader.x, 1.0 - uvsFragmentShader.y);
@@ -34,6 +41,22 @@ void main() {
         vec3 globalAmbient = moonActive ? ambientNight : ambientDay;
 
         vec3 finalColor = baseColor.rgb * (ambient + globalAmbient) * diffuse * sourceLightAngle;
+
+        if(flashlightOn)
+        {
+        //direccion camara a modelo
+        vec3 cameraModelDir = normalize(cameraPosition - primitivePosition.xyz);
+        float spotEffect = dot(cameraModelDir, normalize (-cameraDirection));
+        float flashlightIntensity = 0.f;
+
+        if(spotEffect > cos(radians(cameraAngle)))
+        {
+            flashlightIntensity = max(dot(normalsFragmentShader, cameraModelDir), 0.0);
+        }
+
+        //color con linterna encendida
+        finalColor += baseColor.rgb * diffuse * flashlightIntensity;
+        }
 
         fragColor = vec4(finalColor, opacity);
 

@@ -26,9 +26,15 @@ void Camera::Update(float yaw, float pitch)
 	}
 
 	if (IM.GetKey() == GLFW_KEY_1)
+	{
 		IM.EnableCursor();
+		IM.SetKeyNull();
+	}
 	else if (IM.GetKey() == GLFW_KEY_2)
+	{
 		IM.DisableCursor();
+		IM.SetKeyNull();
+	}
 
 	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
 	front.y = sin(glm::radians(pitch));

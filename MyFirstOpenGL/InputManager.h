@@ -69,6 +69,8 @@ public:
 	//getter estado raton
 	bool IsCursorEnabled() { return cursorEnabled; }
 
+	void SetKeyNull() { key = -1; }
+
 };
 
 #endif 

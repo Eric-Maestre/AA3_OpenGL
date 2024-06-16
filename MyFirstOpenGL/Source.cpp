@@ -26,6 +26,9 @@ std::vector<GLuint> compiledPrograms;
 std::vector<Mesh> models;
 std::vector<Material> materials;
 
+//bool para saber si la linterna esta encendida o apagada
+bool flashlightOn = false;
+
 void Resize_Window(GLFWwindow* window, int iFrameBufferWidth, int iFrameBufferHeight) {
 	//Definir nuevo tama�o del viewport
 	glViewport(0, 0, iFrameBufferWidth, iFrameBufferHeight);
@@ -38,6 +41,11 @@ void EnsureMin(float component, float minValue)
 {
 	if (component < minValue)
 		component = minValue;
+}
+
+void TurnOnOffFlashlight()
+{
+	flashlightOn = !flashlightOn;
 }
 
 
@@ -239,12 +247,25 @@ void main() {
 				moonActive = true;
 			}
 
+			if (IM.GetKey() == GLFW_KEY_F)
+			{
+				TurnOnOffFlashlight();
+				IM.SetKeyNull();
+			}
+
 			for (int i = 0; i < compiledPrograms.size(); i++)
 			{
 				glUniform3fv(glGetUniformLocation(compiledPrograms[i], "sourceLight"), 1, glm::value_ptr(sourceLightPosition));
 				glUniform1i(glGetUniformLocation(compiledPrograms[i], "moonActive"), moonActive);
 				glUniform3fv(glGetUniformLocation(compiledPrograms[i], "ambientDay"), 1, glm::value_ptr(ambientDay));
 				glUniform3fv(glGetUniformLocation(compiledPrograms[i], "ambientNight"), 1, glm::value_ptr(ambientNight));
+
+				//variables flashlight
+				glUniform3fv(glGetUniformLocation(compiledPrograms[i], "cameraPosition"), 1, glm::value_ptr(mainCamera.position));
+				glUniform3fv(glGetUniformLocation(compiledPrograms[i], "cameraDirection"), 1, glm::value_ptr(mainCamera.directionOfView));
+				glUniform1f(glGetUniformLocation(compiledPrograms[i], "cameraAngle"), 30.f);
+				glUniform1i(glGetUniformLocation(compiledPrograms[i], "flashlightOn"), flashlightOn);
+
 			}
 
 			// Definir la matriz de vista
