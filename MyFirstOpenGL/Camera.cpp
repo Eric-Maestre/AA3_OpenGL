@@ -8,22 +8,7 @@ Camera::Camera()
 
 void Camera::Update()
 {
-	if (IM.GetWPressed()) //W
-	{
-		position.z += 0.1f;
-	}
-	else if (IM.GetSPressed()) //S
-	{
-		position.z -= 0.1f;
-	}
-	else if (IM.GetAPressed()) //A
-	{
-		position.x += 0.1f;
-	}
-	else if (IM.GetDPressed()) //D
-	{
-		position.x -= 0.1f;
-	}
+	
 }
 
 
