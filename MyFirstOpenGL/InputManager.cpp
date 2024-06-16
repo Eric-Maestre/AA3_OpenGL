@@ -35,8 +35,6 @@ void InputManager::Update()
 		keyPressed = GLFW_KEY_1;
 	else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
 		keyPressed = GLFW_KEY_2;
-	else if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
-		keyPressed = GLFW_KEY_3;
 
 	//comprobar ultima tecla pulsada y actual
 	//si la actual es 0 y la ultima es != 0, la tecla ha sido pulsada y soltada
@@ -52,11 +50,17 @@ void InputManager::Update()
 	sPressed = (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS);
 	dPressed = (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS);
 
-	
 }
 
 void InputManager::MouseCallback(GLFWwindow* window, double xpos, double ypos)
 {
+
+	//cursor habilitado, sin movimiento
+	if (IM.IsCursorEnabled()) {
+		return;
+	}
+
+
 	if (firstMouse) {
 		lastX = xpos;
 		lastY = ypos;
@@ -72,8 +76,21 @@ void InputManager::MouseCallback(GLFWwindow* window, double xpos, double ypos)
 	ProcessMouseMovement(xoffset, yoffset);
 }
 
+void InputManager::EnableCursor()
+{
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	cursorEnabled = true;
+}
+
+void InputManager::DisableCursor()
+{
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	cursorEnabled = false;
+}
+
 void InputManager::ProcessMouseMovement(float xoffset, float yoffset)
 {
+
 	const float sensitivity = 0.3f;
 	xoffset *= sensitivity;
 	yoffset *= sensitivity;

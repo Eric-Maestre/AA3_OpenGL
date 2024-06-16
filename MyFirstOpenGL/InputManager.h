@@ -30,6 +30,9 @@ private:
 
 	static void ProcessMouseMovement(float xoffset, float yoffset);
 
+	//variable para raton
+	bool cursorEnabled;
+
 public:
 
 	inline static InputManager& Instance()
@@ -58,6 +61,13 @@ public:
 	//getters de yaw y Pitch
 	static float GetYaw() { return yaw; }
 	static float GetPitch() { return pitch; }
+
+	// Descativar y activar el cursor
+	void EnableCursor();
+	void DisableCursor();
+
+	//getter estado raton
+	bool IsCursorEnabled() { return cursorEnabled; }
 
 };
 
