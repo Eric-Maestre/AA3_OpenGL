@@ -22,7 +22,7 @@ public:
 	void Update(float yaw, float pitch);
 
 	//variable para el movimiento con el raton
-	glm::vec3 front;
+	glm::vec3 front = glm::vec3(0.f);
 };
 
 

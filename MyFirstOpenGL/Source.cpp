@@ -9,6 +9,8 @@
 #include <vector>
 #include <sstream>
 #include <stb_image.h>
+#include <cstdlib>
+#include <ctime>   
 #include "Mesh.h"
 #include "ProgramManager.h"
 #include "Material.h"
@@ -25,6 +27,48 @@ int windowHeight = WINDOW_HEIGHT_DEFAULT;
 std::vector<GLuint> compiledPrograms;
 std::vector<Mesh> models;
 std::vector<Material> materials;
+
+//posiciones posibles
+std::vector<glm::vec3> positions;
+
+//funcion que devuelve posicion random
+glm::vec3 randomPosition()
+{
+	if (positions.empty())
+		throw std::out_of_range("vector vacio");
+
+	int randomIndex = rand() % positions.size();
+	return positions[randomIndex];
+}
+
+//minimos y maximos de la escala
+//rotacion si o si entre 0 y 360
+float minScale = 0.5f;
+float maxScale = 2.5f;
+
+//setters max y min
+void SetMaxScale(float x) { maxScale = x; }
+void SetMinScale(float x) { minScale = x; }
+
+//funciones random rotation y scale
+float randomRotation()
+{
+	float random = ((float)rand()) / (float)RAND_MAX;
+	float range = 360.f -1.f;
+	return  (random * range);
+}
+
+glm::vec3 randomScale()
+{
+	if(minScale > maxScale)
+		throw std::invalid_argument("Min se refiere al mínimo y max al maximo, minimo < maximo, mates de primaria");
+
+	float random = ((float)rand()) / (float)RAND_MAX;
+	float range = maxScale - minScale;
+	return glm::vec3((random * range) + minScale);
+}
+
+
 
 //bool para saber si la linterna esta encendida o apagada
 bool flashlightOn = false;
@@ -50,6 +94,8 @@ void TurnOnOffFlashlight()
 
 
 void main() {
+
+	srand(static_cast<unsigned int>(time(nullptr)));
 
 	//Definir semillas del rand seg�n el tiempo
 	srand(static_cast<unsigned int>(time(NULL)));
@@ -168,13 +214,22 @@ void main() {
 		//Definimos modo de dibujo para cada cara
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+		//añadir valores para el vector de posiciones
+		positions.push_back(glm::vec3(0.f,0.f,1.f));
+		positions.push_back(glm::vec3(1.5f, 0.f, 3.f));
+		positions.push_back(glm::vec3(-2.6f, 0.f, 6.f));
+		positions.push_back(glm::vec3(2.3f, 0.f, 0.5f));
+		positions.push_back(glm::vec3(4.0f, 0.f, 1.5f));
+		positions.push_back(glm::vec3(0.0f, 0.f, 9.5f));
+
+
 		//Indicar a la tarjeta GPU que programa debe usar
 		glUseProgram(compiledPrograms[0]);
 
 		//Definir la matriz de traslacion, rotacion y escalado
-		glm::mat4 translationMatrix = glm::translate(glm::mat4(1.f), glm::vec3(0.f,0.f,1.f));
-		glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(180.f), glm::vec3(0.f, 1.f, 0.f));
-		glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.f), glm::vec3(1.f));
+		glm::mat4 translationMatrix = glm::translate(glm::mat4(1.f), randomPosition());
+		glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(randomRotation()), glm::vec3(0.f, 1.f, 0.f));
+		glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.f), randomScale());
 
 		//18.f, 18 grados por segundo
 		//10 segundos mitad del ciclo y 180 grados
