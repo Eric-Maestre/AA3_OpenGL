@@ -96,10 +96,10 @@ void main() {
 		TimeManager timeManager(20.0f);
 
 		//Crear Sol
-		OribitalObject sunPointLight;
+		OrbitalObject sunPointLight;
 
 		//Crear Luna
-		OribitalObject moonPointLight;
+		OrbitalObject moonPointLight;
 
 		//bool para saber quien esta arriba
 		bool sunActive;
@@ -217,7 +217,7 @@ void main() {
 
 			// Actualizar los objetos orbitales
 			sunPointLight.Update(deltaTime);
-			moonPointLight.Update(deltaTime);
+			moonPointLight.UpdateOpposite(deltaTime, sunPointLight);
 
 			glm::vec3 sourceLightPosition;
 			bool moonActive;

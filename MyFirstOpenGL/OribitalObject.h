@@ -4,18 +4,18 @@
 
 #include "GameObject.h"
 
-class OribitalObject : public GameObject
+class OrbitalObject : public GameObject
 {
 public:
 	//movimiento en circulo
 	float radius = 0.f;
 	float angle = 0.f;
 
-	//giro en sentido contrario
-	bool reverse;
-
+	OrbitalObject() {};
 
 	void Update(float deltaTime);
+
+	void UpdateOpposite(float deltaTime, const OrbitalObject& other);
 };
 
 #endif
