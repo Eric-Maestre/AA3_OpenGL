@@ -15,7 +15,12 @@ uniform vec3 diffuse;
 
 uniform vec3 sourceLight;
 
-uniform bool moonActive = false;
+//para determinar si es de d�a o de noche
+uniform bool moonActive = false; 
+
+//ambientales generales
+uniform vec3 ambientDay;
+uniform vec3 ambientNight;
 
 void main() {
         
@@ -25,6 +30,11 @@ void main() {
         vec3 lightDirection = normalize(sourceLight - primitivePosition.xyz);
         float sourceLightAngle = dot(normalsFragmentShader, lightDirection);
 
-        fragColor = vec4((baseColor.rgb * ambient * diffuse)* sourceLightAngle, opacity);
+        //determinar ambiental dependiendo del momento dle ciclo
+        vec3 globalAmbient = moonActive ? ambientNight : ambientDay;
+
+        vec3 finalColor = baseColor.rgb * (ambient + globalAmbient) * diffuse * sourceLightAngle;
+
+        fragColor = vec4(finalColor, opacity);
 
 }

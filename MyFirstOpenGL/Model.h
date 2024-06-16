@@ -4,15 +4,7 @@
 #include "GameObject.h"
 #include "ProgramManager.h"
 #include "Mesh.h"
-
-struct Material
-{
-	glm::vec3 ambient = glm::vec3(0.f);
-	glm::vec3 diffuse = glm::vec3(0.f);
-	glm::vec3 emissive = glm::vec3(0.f);
-	float opacity = 1.f;
-
-};
+#include "Material.h"
 
 class Model : public GameObject
 {
@@ -21,31 +13,21 @@ private:
 	GLuint compiledProgram;
 	//Mesh
 	Mesh myMesh;
-
 	//Material
 	Material myMaterial;
+
+	glm::mat4 modelPosition;
+	glm::mat4 modelRotation;
+	glm::mat4 modelScale;
 
 	//bool para el eje de rotacion
 	bool rotationAngleX = false;
 	bool rotationAngleY = true;
 	bool rotationAngleZ = false;
 
-	glm::mat4 modelPosition;
-	glm::mat4 modelRotation;
-	glm::mat4 modelScale;
-
-
-	// Funcion que leera un.obj y devolvera un modelo para poder ser renderizado
-	Mesh LoadOBJMesh(const std::string& filePath);
-
 	glm::mat4 GenerateTranslationMatrix(glm::vec3 translation);
 	glm::mat4 GenerateRotationMatrix(glm::vec3 axis, float degrees);
 	glm::mat4 GenerateScaleMatrix(glm::vec3 scale);
-
-
-	//cargar material
-	void LoadMaterial(std::string path);
-
 
 
 public:
@@ -56,6 +38,12 @@ public:
 	GLuint GetProgram() { return compiledProgram; }
 
 	void Update();
+
+	void SetRotationAngleX() { rotationAngleX = true; rotationAngleY = false; rotationAngleZ = false; }
+	void SetRotationAngleY() { rotationAngleX = false; rotationAngleY = true; rotationAngleZ = false; }
+	void SetRotationAngleZ() { rotationAngleX = false; rotationAngleY = false; rotationAngleZ = true; }
+
 };
 
 #endif
+
