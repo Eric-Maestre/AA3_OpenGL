@@ -7,6 +7,11 @@ void InputManager::Init(GLFWwindow* window)
 	lastKeyPressed = -1;
 	keyPressed = -1;
 	key = -1;
+
+	wPressed = false;
+	aPressed = false;
+	sPressed = false;
+	dPressed = false;
 }
 
 void InputManager::Update()
@@ -31,5 +36,11 @@ void InputManager::Update()
 		key = lastKeyPressed;
 	}
 
+	//a diferencia de otras teclas, WASD se mantienen para mayora comodidad
+	wPressed = (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS);
+	aPressed = (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS);
+	sPressed = (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS);
+	dPressed = (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS);
 
+	
 }

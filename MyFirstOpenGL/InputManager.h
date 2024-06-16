@@ -16,6 +16,12 @@ private:
 	int keyPressed;
 	int lastKeyPressed;
 
+	//bools teclas WASD
+	bool wPressed;
+	bool aPressed;
+	bool sPressed;
+	bool dPressed;
+
 	InputManager() = default;
 	InputManager(InputManager&) = delete;
 	InputManager& operator= (const InputManager&) = delete;
@@ -37,6 +43,12 @@ public:
 
 	//setter de la key por si acaso
 	void SetKey(int a) { key = a; }
+
+	//getters teclas WASD
+	bool GetWPressed() { return wPressed; }
+	bool GetAPressed() { return aPressed; }
+	bool GetSPressed() { return sPressed; }
+	bool GetDPressed() { return dPressed; }
 
 };
 

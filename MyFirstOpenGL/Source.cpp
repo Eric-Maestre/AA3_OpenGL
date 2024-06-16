@@ -95,6 +95,9 @@ void main() {
 		//crear Time Manager, definir el tiempo del ciclo (20 segundos)
 		TimeManager timeManager(20.0f);
 
+		//Iniciar Input Manager
+		IM.Init(window);
+
 		//Crear Sol
 		OrbitalObject sunPointLight;
 
@@ -200,6 +203,9 @@ void main() {
 			//Limpiamos los buffers
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+			//Update del InputManager
+			IM.Update();
+
 			for (int i = 0; i < materials.size(); i++)
 			{
 				EnsureMin(materials[i].ambient.r, 0.15f);
@@ -242,7 +248,7 @@ void main() {
 			}
 
 			// Definir la matriz de vista
-			view = glm::lookAt(mainCamera.position, glm::vec3(0.0f, 1.0f, 0.f), mainCamera.localVectorUp);
+			view = glm::lookAt(mainCamera.position, mainCamera.position + glm::vec3(0.f,0.f,1.f), mainCamera.localVectorUp);
 
 			// Definir la matriz proyeccion
 			projection = glm::perspective(glm::radians(mainCamera.fFov), (float)windowWidth / (float)windowHeight, mainCamera.fNear, mainCamera.fFar);
@@ -261,6 +267,9 @@ void main() {
 
 			//Renderizo objeto 0
 			models[0].Render();
+
+			//Update Camera
+			mainCamera.Update();
 
 			//Cambiamos buffers
 			glFlush();
