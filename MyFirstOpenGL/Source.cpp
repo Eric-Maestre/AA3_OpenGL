@@ -28,6 +28,11 @@ std::vector<GLuint> compiledPrograms;
 std::vector<Mesh> models;
 std::vector<Material> materials;
 
+//Definir las matrices de traslacion, rotacion y escalado
+std::vector<glm::mat4> translationMatrixs;
+std::vector<glm::mat4> rotationsMatrixs;
+std::vector<glm::mat4> scalesMatrixs;
+
 //posiciones posibles
 std::vector<glm::vec3> positions;
 
@@ -66,6 +71,17 @@ glm::vec3 randomScale()
 	float random = ((float)rand()) / (float)RAND_MAX;
 	float range = maxScale - minScale;
 	return glm::vec3((random * range) + minScale);
+}
+
+void FillMatrixsVectors(int size)
+{
+	for (int i = 0; i < size; i++)
+	{
+		translationMatrixs.push_back(glm::translate(glm::mat4(1.f), randomPosition()));
+		rotationsMatrixs.push_back(glm::rotate(glm::mat4(1.0f), glm::radians(randomRotation()), glm::vec3(0.f, 1.f, 0.f)));
+		scalesMatrixs.push_back(glm::scale(glm::mat4(1.f), randomScale()));
+	}
+
 }
 
 
@@ -175,12 +191,15 @@ void main() {
 		myFirstProgram.fragmentShader = PM.LoadFragmentShader("MyFirstFragmentShader.glsl");
 
 		//Cargo Modelo
+		for (int i = 0; i < 3; i++)
 		models.push_back(Mesh::LoadOBJMesh("Assets/Models/troll.obj"));
 
 		//Compilar programa
+		for(int i = 0; i <3; i++)
 		compiledPrograms.push_back(PM.CreateProgram(myFirstProgram));
 
 		//Compilar materiales
+		for(int i = 0; i < 3; i++)
 		materials.push_back(Material::LoadMaterial("Assets/Materials/troll.mtl"));
 
 		//Definimos canal de textura activo
@@ -222,14 +241,7 @@ void main() {
 		positions.push_back(glm::vec3(4.0f, 0.f, 1.5f));
 		positions.push_back(glm::vec3(0.0f, 0.f, 9.5f));
 
-
-		//Indicar a la tarjeta GPU que programa debe usar
-		glUseProgram(compiledPrograms[0]);
-
-		//Definir la matriz de traslacion, rotacion y escalado
-		glm::mat4 translationMatrix = glm::translate(glm::mat4(1.f), randomPosition());
-		glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(randomRotation()), glm::vec3(0.f, 1.f, 0.f));
-		glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.f), randomScale());
+		FillMatrixsVectors(models.size());
 
 		//18.f, 18 grados por segundo
 		//10 segundos mitad del ciclo y 180 grados
@@ -246,12 +258,18 @@ void main() {
 		double currentTime;
 		float deltaTime;
 		
+		
+		for (int i = 0; i < compiledPrograms.size(); i++)
+		{
+			glUseProgram(compiledPrograms[i]);
 
-		//Asignar valores iniciales al programa
-		glUniform2f(glGetUniformLocation(compiledPrograms[0], "windowSize"), windowWidth, windowHeight);
+			//Asignar valores iniciales al programa
+			glUniform2f(glGetUniformLocation(compiledPrograms[0], "windowSize"), windowWidth, windowHeight);
 
-		//Asignar valor variable de textura a usar.
-		glUniform1i(glGetUniformLocation(compiledPrograms[0], "textureSampler"), 0);
+			//Asignar valor variable de textura a usar.
+			glUniform1i(glGetUniformLocation(compiledPrograms[0], "textureSampler"), 0);
+		}
+
 
 		//crear view y projection
 		glm::mat4 view;
@@ -310,6 +328,8 @@ void main() {
 
 			for (int i = 0; i < compiledPrograms.size(); i++)
 			{
+				glUseProgram(compiledPrograms[i]);
+
 				glUniform3fv(glGetUniformLocation(compiledPrograms[i], "sourceLight"), 1, glm::value_ptr(sourceLightPosition));
 				glUniform1i(glGetUniformLocation(compiledPrograms[i], "moonActive"), moonActive);
 				glUniform3fv(glGetUniformLocation(compiledPrograms[i], "ambientDay"), 1, glm::value_ptr(ambientDay));
@@ -329,20 +349,29 @@ void main() {
 			// Definir la matriz proyeccion
 			projection = glm::perspective(glm::radians(mainCamera.fFov), (float)windowWidth / (float)windowHeight, mainCamera.fNear, mainCamera.fFar);
 
-			// Pasar las matrices
-			glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[0], "translationMatrix"), 1, GL_FALSE, glm::value_ptr(translationMatrix));
-			glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[0], "rotationMatrix"), 1, GL_FALSE, glm::value_ptr(rotationMatrix));
-			glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[0], "scaleMatrix"), 1, GL_FALSE, glm::value_ptr(scaleMatrix));
-			glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[0], "view"), 1, GL_FALSE, glm::value_ptr(view));
-			glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[0], "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
-			//Pasar los valores del material
-			glUniform1f(glGetUniformLocation(compiledPrograms[0], "opacity"), materials[0].opacity);
-			glUniform3fv(glGetUniformLocation(compiledPrograms[0], "ambient"), 1, glm::value_ptr(materials[0].ambient));
-			glUniform3fv(glGetUniformLocation(compiledPrograms[0], "diffuse"), 1, glm::value_ptr(materials[0].diffuse));
+			for (int i = 0; i < compiledPrograms.size(); i++)
+			{
+				// Pasar las matrices
+				glUseProgram(compiledPrograms[i]);
 
-			//Renderizo objeto 0
-			models[0].Render();
+				glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[i], "translationMatrix"), 1, GL_FALSE, glm::value_ptr(translationMatrixs[i]));
+				glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[i], "rotationMatrix"), 1, GL_FALSE, glm::value_ptr(rotationsMatrixs[i]));
+				glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[i], "scaleMatrix"), 1, GL_FALSE, glm::value_ptr(scalesMatrixs[i]));
+				glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[i], "view"), 1, GL_FALSE, glm::value_ptr(view));
+				glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[i], "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+				//Pasar los valores del material
+				glUniform1f(glGetUniformLocation(compiledPrograms[i], "opacity"), materials[i].opacity);
+				glUniform3fv(glGetUniformLocation(compiledPrograms[i], "ambient"), 1, glm::value_ptr(materials[i].ambient));
+				glUniform3fv(glGetUniformLocation(compiledPrograms[i], "diffuse"), 1, glm::value_ptr(materials[i].diffuse));
+
+				//Renderizo objetos
+				models[i].Render();
+
+			}
+		
+
 
 			//Update Camera
 			mainCamera.Update(IM.GetYaw(), IM.GetPitch());
@@ -353,12 +382,15 @@ void main() {
 		}
 
 		//Desactivar y eliminar programa
-		glUseProgram(0);
-		glDeleteProgram(compiledPrograms[0]);
+		for (int i = 0; i < compiledPrograms.size(); i++)
+		{
+			glUseProgram(0);
+			glDeleteProgram(compiledPrograms[0]);
+		}
 
 	}
 	else {
-		std::cout << "Ha petao." << std::endl;
+		std::cout << "Ha fallado" << std::endl;
 		glfwTerminate();
 	}
 
