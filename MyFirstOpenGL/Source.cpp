@@ -162,6 +162,15 @@ void main() {
 	int width, height, nrChannels;
 	unsigned char* textureInfo = stbi_load("Assets/Textures/troll.png", &width, &height, &nrChannels, 0);
 
+	//Leer 2a textura
+	int widthPanda, heightPanda, nrChannelsPanda;
+	unsigned char* textureInfoPanda = stbi_load("Assets/Textures/KFP1.png", &widthPanda, &heightPanda, &nrChannelsPanda, 0);
+
+	//Leer 3a textura
+	int widthMajora, heightMajora, nrChannelsMajora;
+	unsigned char* textureInfoMajora = stbi_load("Assets/Textures/KFP1.png", &widthMajora, &heightMajora, &nrChannelsMajora, 0);
+
+
 	//Inicializamos GLEW y controlamos errores
 	if (glewInit() == GLEW_OK) {
 
@@ -197,16 +206,23 @@ void main() {
 		myFirstProgram.fragmentShader = PM.LoadFragmentShader("MyFirstFragmentShader.glsl");
 
 		//Cargo Modelo
-		for (int i = 0; i < 3; i++)
 		models.push_back(Mesh::LoadOBJMesh("Assets/Models/troll.obj"));
+
+		models.push_back(Mesh::LoadOBJMesh("Assets/Models/KFP1.obj"));
+
+		models.push_back(Mesh::LoadOBJMesh("Assets/Models/majora_avatar.obj"));
+
 
 		//Compilar programa
 		for(int i = 0; i <3; i++)
 		compiledPrograms.push_back(PM.CreateProgram(myFirstProgram));
 
 		//Compilar materiales
-		for(int i = 0; i < 3; i++)
 		materials.push_back(Material::LoadMaterial("Assets/Materials/troll.mtl"));
+
+		materials.push_back(Material::LoadMaterial("Assets/Materials/KFP1.mtl"));
+
+		materials.push_back(Material::LoadMaterial("Assets/Materials/majora_avatar.mtl"));
 
 		//Definimos canal de textura activo
 		glActiveTexture(GL_TEXTURE0);
@@ -232,6 +248,56 @@ void main() {
 
 		//Liberar memoria de la imagen cargada
 		stbi_image_free(textureInfo);
+
+		//Definimos canal de textura activo
+		glActiveTexture(GL_TEXTURE1);
+
+		//Generar textura
+		GLuint textureIDPanda;
+		glGenTextures(1, &textureIDPanda);
+
+		//Vinculamos texture
+		glBindTexture(GL_TEXTURE_2D, textureIDPanda);
+
+		//Configurar textura
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		//Cargar imagen a la textura
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, widthPanda, heightPanda, 0, GL_RGB, GL_UNSIGNED_BYTE, textureInfoPanda);
+
+		//Generar mipmap
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+		//Liberar memoria de la imagen cargada
+		stbi_image_free(textureInfoPanda);
+
+		//Definimos canal de textura activo
+		glActiveTexture(GL_TEXTURE2);
+
+		//Generar textura
+		GLuint textureIDMajora;
+		glGenTextures(1, &textureIDMajora);
+
+		//Vinculamos texture
+		glBindTexture(GL_TEXTURE_2D, textureIDMajora);
+
+		//Configurar textura
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		//Cargar imagen a la textura
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, widthMajora, heightMajora, 0, GL_RGB, GL_UNSIGNED_BYTE, textureInfoMajora);
+
+		//Generar mipmap
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+		//Liberar memoria de la imagen cargada
+		stbi_image_free(textureInfoMajora);
 
 		//Definimos color para limpiar el buffer de color
 		glClearColor(0.f, 0.f, 0.f, 1.f);
@@ -270,16 +336,20 @@ void main() {
 			glUseProgram(compiledPrograms[i]);
 
 			//Asignar valores iniciales al programa
-			glUniform2f(glGetUniformLocation(compiledPrograms[0], "windowSize"), windowWidth, windowHeight);
+			glUniform2f(glGetUniformLocation(compiledPrograms[i], "windowSize"), windowWidth, windowHeight);
 
 			//Asignar valor variable de textura a usar.
-			glUniform1i(glGetUniformLocation(compiledPrograms[0], "textureSampler"), 0);
+			glUniform1i(glGetUniformLocation(compiledPrograms[i], "textureSampler"), i);	
+
 		}
 
 
 		//crear view y projection
 		glm::mat4 view;
 		glm::mat4 projection;
+
+		glm::vec3 sourceLightPosition;
+		bool moonActive;
 
 		//Generamos el game loop
 		while (!glfwWindowShouldClose(window)) {
@@ -312,8 +382,6 @@ void main() {
 			sunPointLight.Update(deltaTime);
 			moonPointLight.UpdateOpposite(deltaTime, sunPointLight);
 
-			glm::vec3 sourceLightPosition;
-			bool moonActive;
 
 			if (timeManager.IsDay())
 			{
@@ -334,7 +402,6 @@ void main() {
 
 			if (IM.GetKey() == GLFW_KEY_0)
 			{
-				std::cout << "fuck" << std::endl;
 				FillMatrixsVectors(models.size());
 				IM.SetKeyNull();
 			}
