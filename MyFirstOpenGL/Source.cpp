@@ -36,6 +36,9 @@ std::vector<glm::mat4> scalesMatrixs;
 //posiciones posibles
 std::vector<glm::vec3> positions;
 
+//posiciones usadas
+std::vector<int> usedIndexs;
+
 //funcion que devuelve posicion random
 glm::vec3 randomPosition()
 {
@@ -74,7 +77,10 @@ glm::vec3 randomScale()
 }
 
 void FillMatrixsVectors(int size)
-{
+{  
+	translationMatrixs.clear();
+	rotationsMatrixs.clear();
+	scalesMatrixs.clear();
 	for (int i = 0; i < size; i++)
 	{
 		translationMatrixs.push_back(glm::translate(glm::mat4(1.f), randomPosition()));
@@ -323,6 +329,13 @@ void main() {
 			if (IM.GetKey() == GLFW_KEY_F)
 			{
 				TurnOnOffFlashlight();
+				IM.SetKeyNull();
+			}
+
+			if (IM.GetKey() == GLFW_KEY_0)
+			{
+				std::cout << "fuck" << std::endl;
+				FillMatrixsVectors(models.size());
 				IM.SetKeyNull();
 			}
 
