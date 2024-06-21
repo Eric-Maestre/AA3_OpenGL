@@ -4,12 +4,16 @@
 
 #include "GameObject.h"
 #include "InputManager.h"
+#include "TimeManager.h"
 
 class Camera : public GameObject
 {
 public:
 	glm::vec3 localVectorUp = glm::vec3(0.f, 1.f, 0.f);
 	glm::vec3 directionOfView = position + glm::vec3(0.f,0.f, 1.f);
+	glm::vec3 localVectorRight = glm::vec3(0.f, 0.f, 0.f);
+
+	float speed = 10.f;
 
 	float fFov = 90.f;
 	float fNear = 0.1f;
@@ -22,7 +26,7 @@ public:
 	float maxPitch = 180.f;
 
 	Camera();
-	void Update();
+	void Update(float dt);
 
 	//variable para el movimiento con el raton
 	glm::vec3 front = glm::vec3(0.f);

@@ -91,6 +91,7 @@ glm::vec3 randomScale()
 
 void FillMatrixsVectors(int size)
 {  
+	usedIndexs.clear();
 	translationMatrixs.clear();
 	rotationsMatrixs.clear();
 	scalesMatrixs.clear();
@@ -266,11 +267,11 @@ void main() {
 
 		//18.f, 18 grados por segundo
 		//10 segundos mitad del ciclo y 180 grados
-		sunPointLight.position = glm::vec3(-5.f, 0.f, 0.f);
+		sunPointLight.position = glm::vec3(-5.f, 0.f, 1.f);
 		sunPointLight.radius = 1.f;
 		sunPointLight.velocity = 18.f;
 
-		moonPointLight.position = glm::vec3(5.f, 0.f, 0.f);
+		moonPointLight.position = glm::vec3(5.f, 0.f, 1.f);
 		moonPointLight.radius = 1.f;
 		moonPointLight.velocity = 18.f;
 		
@@ -400,7 +401,7 @@ void main() {
 			}
 
 			//Update Camera
-			mainCamera.Update();
+			mainCamera.Update(deltaTime);
 
 			//Cambiamos buffers
 			glFlush();
