@@ -39,13 +39,26 @@ std::vector<glm::vec3> positions;
 //posiciones usadas
 std::vector<int> usedIndexs;
 
+bool ContainsValue(int value)
+{
+	return std::find(usedIndexs.begin(), usedIndexs.end(), value) != usedIndexs.end();
+}
+
 //funcion que devuelve posicion random
 glm::vec3 randomPosition()
 {
 	if (positions.empty())
 		throw std::out_of_range("vector vacio");
 
-	int randomIndex = rand() % positions.size();
+	int randomIndex;
+
+	do
+	{
+		randomIndex = rand() % positions.size();
+	} while (ContainsValue(randomIndex));
+
+	usedIndexs.push_back(randomIndex);
+
 	return positions[randomIndex];
 }
 
