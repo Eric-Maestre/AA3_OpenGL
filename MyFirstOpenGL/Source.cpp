@@ -9,6 +9,8 @@
 #include <vector>
 #include <sstream>
 #include <stb_image.h>
+#include <cstdlib>
+#include <ctime>   
 #include "Mesh.h"
 #include "ProgramManager.h"
 #include "Material.h"
@@ -25,6 +27,84 @@ int windowHeight = WINDOW_HEIGHT_DEFAULT;
 std::vector<GLuint> compiledPrograms;
 std::vector<Mesh> models;
 std::vector<Material> materials;
+
+//Definir las matrices de traslacion, rotacion y escalado
+std::vector<glm::mat4> translationMatrixs;
+std::vector<glm::mat4> rotationsMatrixs;
+std::vector<glm::mat4> scalesMatrixs;
+
+//posiciones posibles
+std::vector<glm::vec3> positions;
+
+//posiciones usadas
+std::vector<int> usedIndexs;
+
+bool ContainsValue(int value)
+{
+	return std::find(usedIndexs.begin(), usedIndexs.end(), value) != usedIndexs.end();
+}
+
+//funcion que devuelve posicion random
+glm::vec3 randomPosition()
+{
+	if (positions.empty())
+		throw std::out_of_range("vector vacio");
+
+	int randomIndex;
+
+	do
+	{
+		randomIndex = rand() % positions.size();
+	} while (ContainsValue(randomIndex));
+
+	usedIndexs.push_back(randomIndex);
+
+	return positions[randomIndex];
+}
+
+//minimos y maximos de la escala
+//rotacion si o si entre 0 y 360
+float minScale = 0.5f;
+float maxScale = 2.5f;
+
+//setters max y min
+void SetMaxScale(float x) { maxScale = x; }
+void SetMinScale(float x) { minScale = x; }
+
+//funciones random rotation y scale
+float randomRotation()
+{
+	float random = ((float)rand()) / (float)RAND_MAX;
+	float range = 360.f -1.f;
+	return  (random * range);
+}
+
+glm::vec3 randomScale()
+{
+	if(minScale > maxScale)
+		throw std::invalid_argument("Min se refiere al mínimo y max al maximo, minimo < maximo, mates de primaria");
+
+	float random = ((float)rand()) / (float)RAND_MAX;
+	float range = maxScale - minScale;
+	return glm::vec3((random * range) + minScale);
+}
+
+void FillMatrixsVectors(int size)
+{  
+	usedIndexs.clear();
+	translationMatrixs.clear();
+	rotationsMatrixs.clear();
+	scalesMatrixs.clear();
+	for (int i = 0; i < size; i++)
+	{
+		translationMatrixs.push_back(glm::translate(glm::mat4(1.f), randomPosition()));
+		rotationsMatrixs.push_back(glm::rotate(glm::mat4(1.0f), glm::radians(randomRotation()), glm::vec3(0.f, 1.f, 0.f)));
+		scalesMatrixs.push_back(glm::scale(glm::mat4(1.f), randomScale()));
+	}
+
+}
+
+
 
 //bool para saber si la linterna esta encendida o apagada
 bool flashlightOn = false;
@@ -50,6 +130,8 @@ void TurnOnOffFlashlight()
 
 
 void main() {
+
+	srand(static_cast<unsigned int>(time(nullptr)));
 
 	//Definir semillas del rand seg�n el tiempo
 	srand(static_cast<unsigned int>(time(NULL)));
@@ -122,6 +204,8 @@ void main() {
 		float factorReflection = 0.4f;
 		glm::vec3 ambientNight = factorReflection * ambientDay;
 
+		float maxDistanceFlashlight = 3.5f;
+
 		//Compilar shaders
 		ShaderProgram myFirstProgram;
 		myFirstProgram.vertexShader = PM.LoadVertexShader("MyFirstVertexShader.glsl");
@@ -129,12 +213,15 @@ void main() {
 		myFirstProgram.fragmentShader = PM.LoadFragmentShader("MyFirstFragmentShader.glsl");
 
 		//Cargo Modelo
+		for (int i = 0; i < 3; i++)
 		models.push_back(Mesh::LoadOBJMesh("Assets/Models/troll.obj"));
 
 		//Compilar programa
+		for(int i = 0; i <3; i++)
 		compiledPrograms.push_back(PM.CreateProgram(myFirstProgram));
 
 		//Compilar materiales
+		for(int i = 0; i < 3; i++)
 		materials.push_back(Material::LoadMaterial("Assets/Materials/troll.mtl"));
 
 		//Definimos canal de textura activo
@@ -168,21 +255,23 @@ void main() {
 		//Definimos modo de dibujo para cada cara
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-		//Indicar a la tarjeta GPU que programa debe usar
-		glUseProgram(compiledPrograms[0]);
+		//añadir valores para el vector de posiciones
+		positions.push_back(glm::vec3(0.f,0.f,1.f));
+		positions.push_back(glm::vec3(1.5f, 0.f, 3.f));
+		positions.push_back(glm::vec3(-2.6f, 0.f, 6.f));
+		positions.push_back(glm::vec3(2.3f, 0.f, 0.5f));
+		positions.push_back(glm::vec3(4.0f, 0.f, 1.5f));
+		positions.push_back(glm::vec3(0.0f, 0.f, 9.5f));
 
-		//Definir la matriz de traslacion, rotacion y escalado
-		glm::mat4 translationMatrix = glm::translate(glm::mat4(1.f), glm::vec3(0.f,0.f,1.f));
-		glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(180.f), glm::vec3(0.f, 1.f, 0.f));
-		glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.f), glm::vec3(1.f));
+		FillMatrixsVectors(models.size());
 
 		//18.f, 18 grados por segundo
 		//10 segundos mitad del ciclo y 180 grados
-		sunPointLight.position = glm::vec3(-1.f, 0.f, 0.f);
+		sunPointLight.position = glm::vec3(-5.f, 0.f, 1.f);
 		sunPointLight.radius = 1.f;
 		sunPointLight.velocity = 18.f;
 
-		moonPointLight.position = glm::vec3(1.f, 0.f, 0.f);
+		moonPointLight.position = glm::vec3(5.f, 0.f, 1.f);
 		moonPointLight.radius = 1.f;
 		moonPointLight.velocity = 18.f;
 		
@@ -190,13 +279,20 @@ void main() {
 		double lastTime = glfwGetTime();
 		double currentTime;
 		float deltaTime;
-		
 
-		//Asignar valores iniciales al programa
-		glUniform2f(glGetUniformLocation(compiledPrograms[0], "windowSize"), windowWidth, windowHeight);
+		for (int i = 0; i < compiledPrograms.size(); i++)
+		{
+			glUseProgram(compiledPrograms[i]);
 
-		//Asignar valor variable de textura a usar.
-		glUniform1i(glGetUniformLocation(compiledPrograms[0], "textureSampler"), 0);
+			//Asignar valores iniciales al programa
+			glUniform2f(glGetUniformLocation(compiledPrograms[0], "windowSize"), windowWidth, windowHeight);
+
+			//Asignar valor variable de textura a usar.
+			glUniform1i(glGetUniformLocation(compiledPrograms[0], "textureSampler"), 0);
+
+			glUniform1f(glGetUniformLocation(compiledPrograms[i], "maxDistance"),maxDistanceFlashlight);
+		}
+
 
 		//crear view y projection
 		glm::mat4 view;
@@ -253,8 +349,16 @@ void main() {
 				IM.SetKeyNull();
 			}
 
+			if (IM.GetKey() == GLFW_KEY_0)
+			{
+				FillMatrixsVectors(models.size());
+				IM.SetKeyNull();
+			}
+
 			for (int i = 0; i < compiledPrograms.size(); i++)
 			{
+				glUseProgram(compiledPrograms[i]);
+
 				glUniform3fv(glGetUniformLocation(compiledPrograms[i], "sourceLight"), 1, glm::value_ptr(sourceLightPosition));
 				glUniform1i(glGetUniformLocation(compiledPrograms[i], "moonActive"), moonActive);
 				glUniform3fv(glGetUniformLocation(compiledPrograms[i], "ambientDay"), 1, glm::value_ptr(ambientDay));
@@ -274,23 +378,30 @@ void main() {
 			// Definir la matriz proyeccion
 			projection = glm::perspective(glm::radians(mainCamera.fFov), (float)windowWidth / (float)windowHeight, mainCamera.fNear, mainCamera.fFar);
 
-			// Pasar las matrices
-			glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[0], "translationMatrix"), 1, GL_FALSE, glm::value_ptr(translationMatrix));
-			glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[0], "rotationMatrix"), 1, GL_FALSE, glm::value_ptr(rotationMatrix));
-			glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[0], "scaleMatrix"), 1, GL_FALSE, glm::value_ptr(scaleMatrix));
-			glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[0], "view"), 1, GL_FALSE, glm::value_ptr(view));
-			glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[0], "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
-			//Pasar los valores del material
-			glUniform1f(glGetUniformLocation(compiledPrograms[0], "opacity"), materials[0].opacity);
-			glUniform3fv(glGetUniformLocation(compiledPrograms[0], "ambient"), 1, glm::value_ptr(materials[0].ambient));
-			glUniform3fv(glGetUniformLocation(compiledPrograms[0], "diffuse"), 1, glm::value_ptr(materials[0].diffuse));
+			for (int i = 0; i < compiledPrograms.size(); i++)
+			{
+				// Pasar las matrices
+				glUseProgram(compiledPrograms[i]);
 
-			//Renderizo objeto 0
-			models[0].Render();
+				glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[i], "translationMatrix"), 1, GL_FALSE, glm::value_ptr(translationMatrixs[i]));
+				glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[i], "rotationMatrix"), 1, GL_FALSE, glm::value_ptr(rotationsMatrixs[i]));
+				glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[i], "scaleMatrix"), 1, GL_FALSE, glm::value_ptr(scalesMatrixs[i]));
+				glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[i], "view"), 1, GL_FALSE, glm::value_ptr(view));
+				glUniformMatrix4fv(glGetUniformLocation(compiledPrograms[i], "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+				//Pasar los valores del material
+				glUniform1f(glGetUniformLocation(compiledPrograms[i], "opacity"), materials[i].opacity);
+				glUniform3fv(glGetUniformLocation(compiledPrograms[i], "ambient"), 1, glm::value_ptr(materials[i].ambient));
+				glUniform3fv(glGetUniformLocation(compiledPrograms[i], "diffuse"), 1, glm::value_ptr(materials[i].diffuse));
+
+				//Renderizo objetos
+				models[i].Render();
+
+			}
 
 			//Update Camera
-			mainCamera.Update(IM.GetYaw(), IM.GetPitch());
+			mainCamera.Update(deltaTime);
 
 			//Cambiamos buffers
 			glFlush();
@@ -298,12 +409,15 @@ void main() {
 		}
 
 		//Desactivar y eliminar programa
-		glUseProgram(0);
-		glDeleteProgram(compiledPrograms[0]);
+		for (int i = 0; i < compiledPrograms.size(); i++)
+		{
+			glUseProgram(0);
+			glDeleteProgram(compiledPrograms[0]);
+		}
 
 	}
 	else {
-		std::cout << "Ha petao." << std::endl;
+		std::cout << "Ha fallado" << std::endl;
 		glfwTerminate();
 	}
 

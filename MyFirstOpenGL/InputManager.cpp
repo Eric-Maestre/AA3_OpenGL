@@ -1,11 +1,5 @@
 #include "InputManager.h"
 
-float InputManager::lastX = 400.0f; 
-float InputManager::lastY = 300.0f; 
-bool InputManager::firstMouse = true;
-float InputManager::yaw = -90.0f; 
-float InputManager::pitch = 0.0f;
-
 void InputManager::Init(GLFWwindow* window)
 {
 	this->window = window;
@@ -20,7 +14,6 @@ void InputManager::Init(GLFWwindow* window)
 	dPressed = false;
 
 	//configurar callback del raton
-	glfwSetCursorPosCallback(window, MouseCallback);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
@@ -37,6 +30,8 @@ void InputManager::Update()
 		keyPressed = GLFW_KEY_2;
 	else if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
 		keyPressed = GLFW_KEY_F;
+	else if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS)
+		keyPressed = GLFW_KEY_0;
 
 	//comprobar ultima tecla pulsada y actual
 	//si la actual es 0 y la ultima es != 0, la tecla ha sido pulsada y soltada
@@ -54,28 +49,26 @@ void InputManager::Update()
 
 }
 
-void InputManager::MouseCallback(GLFWwindow* window, double xpos, double ypos)
+glm::vec2 InputManager::MouseMovement()
 {
 
-	//cursor habilitado, sin movimiento
-	if (IM.IsCursorEnabled()) {
-		return;
-	}
+	//guardar posicion raton
+	glm::vec2 actualMousePosition;
+	double x, y;
 
+	//posicion raton
+	glfwGetCursorPos(window, &x, &y);
 
-	if (firstMouse) {
-		lastX = xpos;
-		lastY = ypos;
-		firstMouse = false;
-	}
+	actualMousePosition = glm::vec2(x, y);
 
-	float xoffset = xpos - lastX;
-	float yoffset = lastY - ypos; // Coordenadas invertidas en Y
+	//distancia posicion actual y anterior
+	glm::vec2 distance(actualMousePosition - lastMousePosition);
 
-	lastX = xpos;
-	lastY = ypos;
+	//guardar lastMousePosition
+	//siguiente iteracion last sera la misma que la actual de esta iteracion
+	lastMousePosition = actualMousePosition;
 
-	ProcessMouseMovement(xoffset, yoffset);
+	return distance;
 }
 
 void InputManager::EnableCursor()
@@ -88,21 +81,4 @@ void InputManager::DisableCursor()
 {
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	cursorEnabled = false;
-}
-
-void InputManager::ProcessMouseMovement(float xoffset, float yoffset)
-{
-
-	const float sensitivity = 0.3f;
-	xoffset *= sensitivity;
-	yoffset *= sensitivity;
-
-	yaw += xoffset;
-	pitch += yoffset;
-
-	// Asegurarse de que pitch no exceda los límites
-	if (pitch > 89.0f)
-		pitch = 89.0f;
-	if (pitch < -89.0f)
-		pitch = -89.0f;
 }
