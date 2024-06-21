@@ -10,6 +10,26 @@ Camera::Camera()
 
 void Camera::Update()
 {
+
+	//movimiento del raton
+	glm::vec2 distance = IM.MouseMovement() * sensivity;
+
+	//calcular yaw y pitch;
+	yaw += distance.x;
+	pitch += distance.y;
+
+	if (pitch > maxPitch)
+		pitch = maxPitch;
+	else if (pitch < -maxPitch)
+		pitch = -maxPitch;
+
+
+	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+	front.y = sin(glm::radians(pitch));
+	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+
+	directionOfView = glm::normalize(front);
+
 	if (IM.GetWPressed()) //W
 	{
 		position.z += 0.1f;
@@ -37,25 +57,6 @@ void Camera::Update()
 		IM.DisableCursor();
 		IM.SetKeyNull();
 	}
-
-	//movimiento del raton
-	glm::vec2 distance = IM.MouseMovement() * sensivity;
-
-	//calcular yaw y pitch;
-	yaw += distance.x;
-	pitch += distance.y;
-
-	if (pitch > maxPitch)
-		pitch = maxPitch;
-	else if (pitch < -maxPitch)
-		pitch = -maxPitch;
-
-
-	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-	front.y = sin(glm::radians(pitch));
-	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-
-	directionOfView = glm::normalize(front);
 }
 
 

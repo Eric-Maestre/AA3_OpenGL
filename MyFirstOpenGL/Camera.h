@@ -19,7 +19,7 @@ public:
 	float yaw;
 	float pitch;
 	float sensivity = 0.3f;
-	float maxPitch = 98.f;
+	float maxPitch = 180.f;
 
 	Camera();
 	void Update();
