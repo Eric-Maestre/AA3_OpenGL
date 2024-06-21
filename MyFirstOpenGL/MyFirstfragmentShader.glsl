@@ -29,6 +29,9 @@ uniform float cameraAngle;
 
 uniform bool flashlightOn;
 
+//distancia maxima de la linterna
+uniform float maxDistance;
+
 void main() {
         
         vec2 adjustedTexCoord = vec2(uvsFragmentShader.x, 1.0 - uvsFragmentShader.y);
@@ -42,7 +45,9 @@ void main() {
 
         vec3 finalColor = baseColor.rgb * (ambient + globalAmbient) * diffuse * sourceLightAngle;
 
-        if(flashlightOn)
+        float distanceToModel = length(cameraPosition - primitivePosition.xyz);
+
+        if(flashlightOn && distanceToModel <= maxDistance)
         {
         //direccion camara a modelo
         vec3 cameraModelDir = normalize(cameraPosition - primitivePosition.xyz);

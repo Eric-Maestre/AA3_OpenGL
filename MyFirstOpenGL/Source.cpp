@@ -190,6 +190,8 @@ void main() {
 		float factorReflection = 0.4f;
 		glm::vec3 ambientNight = factorReflection * ambientDay;
 
+		float maxDistanceFlashlight = 3.5f;
+
 		//Compilar shaders
 		ShaderProgram myFirstProgram;
 		myFirstProgram.vertexShader = PM.LoadVertexShader("MyFirstVertexShader.glsl");
@@ -263,8 +265,7 @@ void main() {
 		double lastTime = glfwGetTime();
 		double currentTime;
 		float deltaTime;
-		
-		
+
 		for (int i = 0; i < compiledPrograms.size(); i++)
 		{
 			glUseProgram(compiledPrograms[i]);
@@ -274,6 +275,8 @@ void main() {
 
 			//Asignar valor variable de textura a usar.
 			glUniform1i(glGetUniformLocation(compiledPrograms[0], "textureSampler"), 0);
+
+			glUniform1f(glGetUniformLocation(compiledPrograms[i], "maxDistance"),maxDistanceFlashlight);
 		}
 
 
