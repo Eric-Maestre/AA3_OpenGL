@@ -390,7 +390,7 @@ void main() {
 
 
 			//Update Camera
-			mainCamera.Update(IM.GetYaw(), IM.GetPitch());
+			mainCamera.Update();
 
 			//Cambiamos buffers
 			glFlush();

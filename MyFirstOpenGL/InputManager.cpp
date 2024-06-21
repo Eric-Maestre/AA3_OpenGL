@@ -1,11 +1,5 @@
 #include "InputManager.h"
 
-float InputManager::lastX = 400.0f; 
-float InputManager::lastY = 300.0f; 
-bool InputManager::firstMouse = true;
-float InputManager::yaw = -90.0f; 
-float InputManager::pitch = 0.0f;
-
 void InputManager::Init(GLFWwindow* window)
 {
 	this->window = window;
@@ -20,7 +14,6 @@ void InputManager::Init(GLFWwindow* window)
 	dPressed = false;
 
 	//configurar callback del raton
-	glfwSetCursorPosCallback(window, MouseCallback);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
@@ -56,28 +49,25 @@ void InputManager::Update()
 
 }
 
-void InputManager::MouseCallback(GLFWwindow* window, double xpos, double ypos)
+glm::vec2 InputManager::MouseMovement()
 {
+	//guardar posicion raton
+	glm::vec2 actualMousePosition;
+	double x, y;
 
-	//cursor habilitado, sin movimiento
-	if (IM.IsCursorEnabled()) {
-		return;
-	}
+	//posicion raton
+	glfwGetCursorPos(window, &x, &y);
 
+	actualMousePosition = glm::vec2(x, y);
 
-	if (firstMouse) {
-		lastX = xpos;
-		lastY = ypos;
-		firstMouse = false;
-	}
+	//distancia posicion actual y anterior
+	glm::vec2 distance(actualMousePosition - lastMousePosition);
 
-	float xoffset = xpos - lastX;
-	float yoffset = lastY - ypos; // Coordenadas invertidas en Y
+	//guardar lastMousePosition
+	//siguiente iteracion last sera la misma que la actual de esta iteracion
+	lastMousePosition = actualMousePosition;
 
-	lastX = xpos;
-	lastY = ypos;
-
-	ProcessMouseMovement(xoffset, yoffset);
+	return distance;
 }
 
 void InputManager::EnableCursor()
@@ -90,21 +80,4 @@ void InputManager::DisableCursor()
 {
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	cursorEnabled = false;
-}
-
-void InputManager::ProcessMouseMovement(float xoffset, float yoffset)
-{
-
-	const float sensitivity = 0.3f;
-	xoffset *= sensitivity;
-	yoffset *= sensitivity;
-
-	yaw += xoffset;
-	pitch += yoffset;
-
-	// Asegurarse de que pitch no exceda los límites
-	if (pitch > 89.0f)
-		pitch = 89.0f;
-	if (pitch < -89.0f)
-		pitch = -89.0f;
 }

@@ -3,6 +3,7 @@
 #define INPUTMANAGER_H
 
 #include <GLFW/glfw3.h>
+#include <glm.hpp>
 
 #define IM InputManager::Instance()
 
@@ -19,16 +20,12 @@ private:
 	//bools teclas WASD
 	bool wPressed, aPressed, sPressed, dPressed;
 
+	//variables raton
+	glm::vec2 lastMousePosition;
+
 	InputManager() = default;
 	InputManager(InputManager&) = delete;
 	InputManager& operator= (const InputManager&) = delete;
-
-	//variables para el ratón
-	static float lastX, lastY;
-	static bool firstMouse;
-	static float yaw, pitch;
-
-	static void ProcessMouseMovement(float xoffset, float yoffset);
 
 	//variable para raton
 	bool cursorEnabled;
@@ -56,11 +53,7 @@ public:
 	bool GetSPressed() { return sPressed; }
 	bool GetDPressed() { return dPressed; }
 
-	static void MouseCallback(GLFWwindow* window, double xpos, double ypos);
-
-	//getters de yaw y Pitch
-	static float GetYaw() { return yaw; }
-	static float GetPitch() { return pitch; }
+	glm::vec2 MouseMovement();
 
 	// Descativar y activar el cursor
 	void EnableCursor();
@@ -70,7 +63,6 @@ public:
 	bool IsCursorEnabled() { return cursorEnabled; }
 
 	void SetKeyNull() { key = -1; }
-
 };
 
 #endif 

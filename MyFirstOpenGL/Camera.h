@@ -15,11 +15,14 @@ public:
 	float fNear = 0.1f;
 	float fFar = 10.f;
 
-	//vector para mover camera 
-	glm::vec3  moveCameraVector = glm::vec3(0.f);
+	//variables raton
+	float yaw;
+	float pitch;
+	float sensivity = 0.5f;
+	float maxPitch = 98.f;
 
 	Camera();
-	void Update(float yaw, float pitch);
+	void Update();
 
 	//variable para el movimiento con el raton
 	glm::vec3 front = glm::vec3(0.f);

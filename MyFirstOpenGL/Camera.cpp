@@ -4,9 +4,11 @@
 Camera::Camera()
 {
 	position = glm::vec3(0.f, 0.f, -1.f);
+	yaw = 0.f;
+	pitch = 0.f;
 }
 
-void Camera::Update(float yaw, float pitch)
+void Camera::Update()
 {
 	if (IM.GetWPressed()) //W
 	{
@@ -35,6 +37,19 @@ void Camera::Update(float yaw, float pitch)
 		IM.DisableCursor();
 		IM.SetKeyNull();
 	}
+
+	//movimiento del raton
+	glm::vec2 distance = IM.MouseMovement() * sensivity;
+
+	//calcular yaw y pitch;
+	yaw += distance.x;
+	pitch += distance.y;
+
+	if (pitch > maxPitch)
+		pitch = maxPitch;
+	else if (pitch < -maxPitch)
+		pitch = -maxPitch;
+
 
 	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
 	front.y = sin(glm::radians(pitch));
