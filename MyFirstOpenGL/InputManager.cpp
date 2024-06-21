@@ -51,6 +51,7 @@ void InputManager::Update()
 
 glm::vec2 InputManager::MouseMovement()
 {
+
 	//guardar posicion raton
 	glm::vec2 actualMousePosition;
 	double x, y;
