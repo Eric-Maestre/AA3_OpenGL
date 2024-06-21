@@ -25,12 +25,12 @@ void Camera::Update(float dt)
 	}
 	else if (IM.GetAPressed()) //A
 	{
-		position -= localVectorRight * speed * dt;
+		position += localVectorRight * speed * dt;
 		position.y = 0.f;
 	}
 	else if (IM.GetDPressed()) //D
 	{
-		position += localVectorRight * speed * dt;
+		position -= localVectorRight * speed * dt;
 		position.y = 0.f;
 	}
 
