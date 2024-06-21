@@ -18,7 +18,7 @@ public:
 	//variables raton
 	float yaw;
 	float pitch;
-	float sensivity = 0.5f;
+	float sensivity = 0.3f;
 	float maxPitch = 98.f;
 
 	Camera();

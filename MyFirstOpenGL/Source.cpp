@@ -253,11 +253,11 @@ void main() {
 
 		//18.f, 18 grados por segundo
 		//10 segundos mitad del ciclo y 180 grados
-		sunPointLight.position = glm::vec3(-1.f, 0.f, 0.f);
+		sunPointLight.position = glm::vec3(-5.f, 0.f, 0.f);
 		sunPointLight.radius = 1.f;
 		sunPointLight.velocity = 18.f;
 
-		moonPointLight.position = glm::vec3(1.f, 0.f, 0.f);
+		moonPointLight.position = glm::vec3(5.f, 0.f, 0.f);
 		moonPointLight.radius = 1.f;
 		moonPointLight.velocity = 18.f;
 		
@@ -337,7 +337,6 @@ void main() {
 
 			if (IM.GetKey() == GLFW_KEY_0)
 			{
-				std::cout << "fuck" << std::endl;
 				FillMatrixsVectors(models.size());
 				IM.SetKeyNull();
 			}
@@ -386,8 +385,6 @@ void main() {
 				models[i].Render();
 
 			}
-		
-
 
 			//Update Camera
 			mainCamera.Update();
